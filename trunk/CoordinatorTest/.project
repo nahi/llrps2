@@ -1,0 +1,18 @@
+<projectDescription>
+  <name>CoordinatorTest</name>
+  <comment/>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+      <arguments/>
+    </buildCommand>
+    <buildCommand>
+      <name>org.eclipse.hyades.test.tools.core.java.junit.builder</name>
+      <arguments/>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
