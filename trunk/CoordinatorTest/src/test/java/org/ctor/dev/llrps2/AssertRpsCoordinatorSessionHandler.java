@@ -1,6 +1,7 @@
 package org.ctor.dev.llrps2;
 
 import java.io.IOException;
+import java.nio.channels.SocketChannel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,21 +10,22 @@ import org.ctor.dev.llrps2.session.Rps;
 import org.ctor.dev.llrps2.session.RpsCommand;
 import org.ctor.dev.llrps2.session.RpsCommandParameter;
 import org.ctor.dev.llrps2.session.RpsMessage;
+import org.ctor.dev.llrps2.session.RpsRole;
 import org.ctor.dev.llrps2.session.RpsSessionException;
 import org.ctor.dev.llrps2.session.RpsState;
 import org.ctor.dev.llrps2.session.RpsStateTransition;
-import org.ctor.dev.llrps2.stub.CoordinatorStub;
+import org.ctor.dev.llrps2.session.SessionStub;
 
 import static junit.framework.Assert.*;
 
-public class RpsCoordinatorSessionHandler {
+public class AssertRpsCoordinatorSessionHandler {
     private static final Log LOG = LogFactory
-            .getLog(RpsCoordinatorSessionHandler.class);
+            .getLog(AssertRpsCoordinatorSessionHandler.class);
 
     protected final RpsStateTransition state = new RpsStateTransition(
-            RpsCoordinatorSessionHandler.class.getName());
+            AssertRpsCoordinatorSessionHandler.class.getName());
 
-    private final CoordinatorStub stub;
+    private final SessionStub stub;
 
     private String sessionId = "SESSION-ID_123.456";
 
@@ -39,40 +41,41 @@ public class RpsCoordinatorSessionHandler {
 
     private String capacity = null;
 
-    public RpsCoordinatorSessionHandler(CoordinatorStub stub) {
-        this.stub = stub;
+    public AssertRpsCoordinatorSessionHandler(SocketChannel channel) {
+        this.stub = new SessionStub(channel, RpsRole.AGENT);
     }
 
-    public void connect() throws RpsSessionException, IOException {
-        stub.connect();
+    public void connect() throws RpsSessionException {
         state.transition(RpsState.ESTABLISHED);
     }
 
     public void sendHello() throws RpsSessionException {
         LOG.info("sending HELLO");
-        stub.sendCommand(RpsCommand.C_HELLO);
+        stub.sendMessage(RpsCommand.C_HELLO);
+        flush();
         state.transition(RpsState.C_HELLO);
     }
 
     public void receiveHello() throws RpsSessionException {
         LOG.info("receiving HELLO");
-        final RpsMessage message = stub.readMessage();
+        final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_HELLO, message.getCommand());
-        stub.checkReadBuffer();
-        state.transition(RpsState.INITIATED);
+        stub.checkNoExtraMessage();
+        state.transition(RpsState.A_HELLO);
     }
 
     public void sendInitiate() throws RpsSessionException {
         LOG.info("sending INITIATE");
-        stub.sendCommand(RpsCommand.C_INITIATE, sessionId);
+        stub.sendMessage(RpsCommand.C_INITIATE, sessionId);
+        flush();
         state.transition(RpsState.C_INITIATION);
     }
 
     public void receiveInitiate() throws RpsSessionException {
         LOG.info("receiving INITIATE");
-        final RpsMessage message = stub.readMessage();
+        final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_INITIATE, message.getCommand());
-        stub.checkReadBuffer();
+        stub.checkNoExtraMessage();
         checkSessionId(message);
         agentName = message.getParameter(RpsCommandParameter.AgentName);
         capacity = message.getParameter(RpsCommandParameter.Capacity);
@@ -81,16 +84,17 @@ public class RpsCoordinatorSessionHandler {
 
     public void sendRoundReady() throws RpsSessionException {
         LOG.info("sending READY");
-        stub.sendCommand(RpsCommand.C_READY, sessionId, roundId, iteration,
+        stub.sendMessage(RpsCommand.C_READY, sessionId, roundId, iteration,
                 ruleId);
+        flush();
         state.transition(RpsState.C_ROUND_READY);
     }
 
     public void receiveRoundReady() throws RpsSessionException {
         LOG.info("receiving READY");
-        final RpsMessage message = stub.readMessage();
+        final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_READY, message.getCommand());
-        stub.checkReadBuffer();
+        stub.checkNoExtraMessage();
         checkSessionId(message);
         checkRoundId(message);
         state.transition(RpsState.ROUND_READY);
@@ -98,16 +102,17 @@ public class RpsCoordinatorSessionHandler {
 
     public void sendCall() throws RpsSessionException {
         LOG.info("sending CALL");
-        stub.sendCommand(RpsCommand.C_CALL, sessionId, roundId);
+        stub.sendMessage(RpsCommand.C_CALL, sessionId, roundId);
+        flush();
         state.transition(RpsState.CALL);
     }
 
     public Rps receiveMove() throws RpsSessionException {
         LOG.info("receiving MOVE");
         state.transition(RpsState.MOVE);
-        final RpsMessage message = stub.readMessage();
+        final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_MOVE, message.getCommand());
-        stub.checkReadBuffer();
+        stub.checkNoExtraMessage();
         checkSessionId(message);
         checkRoundId(message);
         // XXX
@@ -116,26 +121,32 @@ public class RpsCoordinatorSessionHandler {
 
     public void sendResultUpdate() throws RpsSessionException {
         LOG.info("sending RESULT");
-        stub.sendCommand(RpsCommand.C_RESULT, sessionId, roundId,
+        stub.sendMessage(RpsCommand.C_RESULT, sessionId, roundId,
                 previousOppositeMove.getRepresentation());
+        flush();
         state.transition(RpsState.RESULT_UPDATED);
     }
 
     public void sendMatch() throws RpsSessionException {
         LOG.info("sending MATCH");
-        stub.sendCommand(RpsCommand.C_MATCH, sessionId, roundId);
+        stub.sendMessage(RpsCommand.C_MATCH, sessionId, roundId);
+        flush();
         state.transition(RpsState.MATCH);
     }
 
     public void sendClose() throws RpsSessionException {
         LOG.info("sending CLOSE");
-        stub.sendCommand(RpsCommand.C_CLOSE, sessionId);
+        stub.sendMessage(RpsCommand.C_CLOSE, sessionId);
+        flush();
         state.transition(RpsState.C_CLOSE);
     }
 
-    public void close() throws RpsSessionException {
+    public void close() throws IOException {
         stub.close();
-        state.transition(RpsState.END);
+    }
+
+    public long read() throws IOException {
+        return stub.read();
     }
 
     private void checkSessionId(RpsMessage message)
@@ -146,6 +157,16 @@ public class RpsCoordinatorSessionHandler {
     private void checkRoundId(RpsMessage message)
             throws IllegalRpsMessageException {
         message.checkRoundId(roundId);
+    }
+
+    private void flush() throws RpsSessionException {
+        try {
+            stub.flush();
+        }
+        catch (IOException ioe) {
+            LOG.warn(ioe.getMessage(), ioe);
+            throw new RpsSessionException(ioe);
+        }
     }
 
     public void setSessionId(String sessionId) {

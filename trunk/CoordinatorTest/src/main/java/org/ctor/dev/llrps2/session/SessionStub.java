@@ -1,20 +1,16 @@
-package org.ctor.dev.llrps2.stub;
+package org.ctor.dev.llrps2.session;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ctor.dev.llrps2.session.RpsCommand;
-import org.ctor.dev.llrps2.session.RpsMessage;
-import org.ctor.dev.llrps2.session.RpsRole;
-import org.ctor.dev.llrps2.session.RpsSessionException;
 
-public class AgentStub {
-    private static final Log LOG = LogFactory.getLog(AgentStub.class);
+public class SessionStub {
+    private static final Log LOG = LogFactory.getLog(SessionStub.class);
 
     private static final int READ_BUFFER_SIZE = 8024;
 
@@ -24,35 +20,42 @@ public class AgentStub {
 
     private final SocketChannel channel;
 
+    private final RpsRole oppositeRole;
+
     private StringBuilder readBuffer = new StringBuilder();
 
     private StringBuilder writeBuffer = new StringBuilder();
 
-    public AgentStub(SocketChannel channel) {
+    public SessionStub(SocketChannel channel, RpsRole oppositeRole) {
         this.channel = channel;
+        this.oppositeRole = oppositeRole;
     }
 
-    public void sendCommand(RpsCommand command, String... rest) {
-        if (rest.length > 0) {
-            writeMessage(String.format("%s %s", command.getCommand(),
-                    StringUtils.join(rest, ' ')));
+    public void sendMessage(RpsCommand command, String... rest) {
+        if (ArrayUtils.contains(rest, null)) {
+            throw new IllegalArgumentException("command contains null");
         }
-        else {
-            writeMessage(command.getCommand());
-        }
+        final RpsMessage message = RpsMessage.create(command, rest);
+        writeMessage(message.dump());
     }
 
-    public RpsMessage readMessage() throws RpsSessionException {
-        final int pos = readBuffer.indexOf(LINE_TERMINATER);
+    public RpsMessage receiveMessage() throws RpsSessionException {
+        int pos = readBuffer.indexOf(LINE_TERMINATER);
         if (pos == -1) {
             return null;
         }
         final String line = readBuffer.substring(0, pos);
         readBuffer.delete(0, pos + LINE_TERMINATER.length());
-        return RpsMessage.parse(RpsRole.COORDINATOR, line);
+        return RpsMessage.parse(oppositeRole, line);
     }
 
-    public long retrieve() throws IOException {
+    public void checkNoExtraMessage() {
+        if (readBuffer.length() != 0) {
+            throw new RpsCommunicationException("bulk messaging is not allowed");
+        }
+    }
+
+    public long read() throws IOException {
         try {
             final ByteBuffer buffer = ByteBuffer.allocate(READ_BUFFER_SIZE);
             final long readSize = channel.read(buffer);
@@ -67,8 +70,7 @@ public class AgentStub {
             return readSize;
         }
         catch (IOException ioe) {
-            LOG.info(ioe);
-            close();
+            LOG.info(ioe.getMessage(), ioe);
             throw ioe;
         }
     }
@@ -77,6 +79,10 @@ public class AgentStub {
         channel.write(CHARSET.encode(writeBuffer.toString()));
         writeBuffer.setLength(0);
     }
+    
+    public void close() throws IOException {
+        channel.close();
+    }
 
     private void writeMessage(String message) {
         writeLine(message + LINE_TERMINATER);
@@ -84,9 +90,5 @@ public class AgentStub {
 
     private void writeLine(String line) {
         writeBuffer.append(line);
-    }
-
-    public void close() throws IOException {
-        channel.close();
     }
 }
