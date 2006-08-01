@@ -2,6 +2,7 @@ package org.ctor.dev.llrps2.session;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -11,7 +12,7 @@ import org.apache.commons.logging.LogFactory;
 public class RpsStateTransition {
     private static final Log LOG = LogFactory.getLog(RpsStateTransition.class);
 
-    private static final HashMap<RpsState, Set<RpsState>> map = new HashMap<RpsState, Set<RpsState>>();
+    private static final Map<RpsState, Set<RpsState>> map = new HashMap<RpsState, Set<RpsState>>();
 
     static void define(RpsState from, RpsState... candidate) {
         final Set<RpsState> set = new HashSet<RpsState>();

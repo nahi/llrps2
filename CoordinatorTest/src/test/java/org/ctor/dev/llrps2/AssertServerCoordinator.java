@@ -7,33 +7,52 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.AssertRpsCoordinatorSessionHandler;
 import org.ctor.dev.llrps2.session.RpsSessionException;
 
-final public class SampleAgent extends Thread {
-    private static final Log LOG = LogFactory.getLog(SampleAgent.class);
+public class AssertServerCoordinator extends AssertCoordinator implements
+        Runnable {
+    private static final Log LOG = LogFactory
+            .getLog(AssertServerCoordinator.class);
 
     private static final int DEFAULT_LISTEN_PORT = 2006;
 
-    private final Map<SocketChannel, RpsAgentSessionHandler> handlerMap = new HashMap<SocketChannel, RpsAgentSessionHandler>();
+    private final BlockingQueue<SocketChannel> sessionPool = new ArrayBlockingQueue<SocketChannel>(
+            5);
+
+    private int handlerCounter = 0;
 
     private final int listenPort;
 
-    public SampleAgent() {
+    private Thread thread = null;
+
+    public AssertServerCoordinator() {
         this(DEFAULT_LISTEN_PORT);
     }
 
-    public SampleAgent(int listenPort) {
+    public AssertServerCoordinator(int listenPort) {
         this.listenPort = listenPort;
     }
 
-    @Override
+    public void start() {
+        thread = new Thread(this);
+        thread.start();
+    }
+
+    public boolean isAlive() {
+        if (thread == null) {
+            return false;
+        }
+        return thread.isAlive();
+    }
+
     public void run() {
-        LOG.info("initializing agent...");
+        LOG.info("initializing coordinator...");
         try {
             final Selector selector = Selector.open();
             final ServerSocketChannel serverChannel = ServerSocketChannel
@@ -53,9 +72,6 @@ final public class SampleAgent extends Thread {
                 catch (IOException ioe) {
                     LOG.warn(ioe.getMessage(), ioe);
                 }
-                catch (RpsSessionException irste) {
-                    LOG.warn(irste.getMessage(), irste);
-                }
             }
             serverChannel.close();
             selector.close();
@@ -68,31 +84,44 @@ final public class SampleAgent extends Thread {
     }
 
     public void terminate() {
-        interrupt();
+        if (thread != null) {
+            LOG.info("terminate");
+            thread.interrupt();
+        }
+    }
+
+    @Override
+    public int connect() throws RpsSessionException {
+        try {
+            final SocketChannel channel = sessionPool.take();
+            LOG.info("assign a channel from session pool");
+            if (channel == null) {
+                throw new IllegalStateException();
+            }
+            final AssertRpsCoordinatorSessionHandler handler = new AssertRpsCoordinatorSessionHandler(
+                    channel);
+            final int id = handlerCounter++;
+            handlerMap.put(id, handler);
+            channelMap.put(id, channel);
+            handler.connect();
+            receiveHello(id);
+            return id;
+        }
+        catch (InterruptedException ie) {
+            LOG.warn(ie.getMessage(), ie);
+            throw new RpsSessionException(ie);
+        }
     }
 
     private void selectAndProcess(Selector selector,
-            ServerSocketChannel serverChannel) throws IOException,
-            RpsSessionException {
+            ServerSocketChannel serverChannel) throws IOException {
         selector.select();
         for (final SelectionKey key : selector.selectedKeys()) {
             if (key.isAcceptable()) {
                 final SocketChannel channel = serverChannel.accept();
                 if (channel != null) {
-                    channel.configureBlocking(false);
-                    channel.register(selector, SelectionKey.OP_READ);
                     LOG.info("accepted");
-                }
-            }
-            else if (key.isReadable()) {
-                final SocketChannel channel = (SocketChannel) key.channel();
-                final RpsAgentSessionHandler handler = getHandler(channel);
-                try {
-                    handler.handle();
-                }
-                catch (RpsSessionException rse) {
-                    handler.close();
-                    throw rse;
+                    sessionPool.add(channel);
                 }
             }
             else {
@@ -101,14 +130,9 @@ final public class SampleAgent extends Thread {
         }
     }
 
-    private RpsAgentSessionHandler getHandler(final SocketChannel channel) {
-        if (handlerMap.get(channel) == null) {
-            handlerMap.put(channel, new RpsAgentSessionHandler(channel));
-        }
-        return handlerMap.get(channel);
-    }
-
-    public static void main(final String[] arg) {
-        (new SampleAgent()).start();
+    @Override
+    public void sendHello(int id) throws RpsSessionException {
+        // do nothing
+        // server type coordinator accepts request and gets A_HELLO.
     }
 }

@@ -1,6 +1,7 @@
 package org.ctor.dev.llrps2;
 
 import java.io.IOException;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
 
 import org.apache.commons.logging.Log;
@@ -10,10 +11,11 @@ import org.ctor.dev.llrps2.session.Rps;
 import org.ctor.dev.llrps2.session.RpsCommand;
 import org.ctor.dev.llrps2.session.RpsCommandParameter;
 import org.ctor.dev.llrps2.session.RpsMessage;
+import org.ctor.dev.llrps2.session.RpsRole;
 import org.ctor.dev.llrps2.session.RpsSessionException;
 import org.ctor.dev.llrps2.session.RpsState;
 import org.ctor.dev.llrps2.session.RpsStateTransition;
-import org.ctor.dev.llrps2.stub.AgentStub;
+import org.ctor.dev.llrps2.session.SessionStub;
 
 public class RpsAgentSessionHandler {
     private static final Log LOG = LogFactory
@@ -22,7 +24,7 @@ public class RpsAgentSessionHandler {
     private final RpsStateTransition state = new RpsStateTransition(
             RpsAgentSessionHandler.class.getName());
 
-    private final AgentStub stub;
+    private final SessionStub stub;
 
     private String sessionId = null;
 
@@ -37,7 +39,7 @@ public class RpsAgentSessionHandler {
     private String ruleId = null;
 
     public RpsAgentSessionHandler(SocketChannel channel) {
-        this.stub = new AgentStub(channel);
+        this.stub = new SessionStub(channel, RpsRole.COORDINATOR);
         try {
             connect();
         }
@@ -46,25 +48,41 @@ public class RpsAgentSessionHandler {
         }
     }
 
-    public void handle() throws IOException, RpsSessionException {
+    // for client type agent only
+    public void sendHello() throws RpsSessionException {
+        LOG.info("sending HELLO");
+        stub.sendMessage(RpsCommand.C_HELLO);
         try {
-            final long retrieveSize = stub.retrieve();
+            stub.flush();
+        }
+        catch (IOException ioe) {
+            throw new RpsSessionException(ioe);
+        }
+        state.transition(RpsState.C_HELLO);
+    }
+
+    public void handle() throws RpsSessionException, ClosedByInterruptException {
+        try {
+            final long retrieveSize = stub.read();
             if (retrieveSize > 0) {
                 RpsMessage message = null;
-                while ((message = stub.readMessage()) != null) {
+                while ((message = stub.receiveMessage()) != null) {
                     handleMessage(message);
                 }
                 stub.flush();
             }
         }
+        catch (ClosedByInterruptException cbie) {
+            throw cbie;
+        }
         catch (IOException ioe) {
-            stub.close();
-            throw ioe;
+            LOG.warn(ioe.getMessage(), ioe);
+            throw new RpsSessionException(ioe);
         }
-        catch (RpsSessionException rse) {
-            stub.close();
-            throw rse;
-        }
+    }
+
+    public void close() throws IOException {
+        stub.close();
     }
 
     // XXX use commands if the spec is fixed >> gotoken
@@ -72,17 +90,20 @@ public class RpsAgentSessionHandler {
         switch (message.getCommand()) {
         case C_CALL:
             receiveCall(message);
+            stub.checkNoExtraMessage();
             LOG.warn("An SampleAgent always sends: " + Rps.Rock);
             sendMove(Rps.Rock);
             break;
         case C_CLOSE:
             receiveClose(message);
+            stub.checkNoExtraMessage();
             break;
         case C_HELLO:
             receiveHello(message);
             break;
         case C_INITIATE:
             receiveInitiate(message);
+            stub.checkNoExtraMessage();
             sendInitiate();
             break;
         case C_MATCH:
@@ -90,6 +111,7 @@ public class RpsAgentSessionHandler {
             break;
         case C_READY:
             receiveRoundReady(message);
+            stub.checkNoExtraMessage();
             sendRoundReady();
             break;
         case C_RESULT:
@@ -102,7 +124,7 @@ public class RpsAgentSessionHandler {
     }
 
     private void connect() throws RpsSessionException {
-        LOG.info("connectting");
+        LOG.info("connecting");
         state.transition(RpsState.ESTABLISHED);
     }
 
@@ -121,7 +143,7 @@ public class RpsAgentSessionHandler {
 
     private void sendInitiate() throws RpsSessionException {
         LOG.info("sending INITIATE");
-        stub.sendCommand(RpsCommand.A_INITIATE, sessionId, agentName, capacity);
+        stub.sendMessage(RpsCommand.A_INITIATE, sessionId, agentName, capacity);
         LOG.info("send agent name: " + agentName + ", capacity: " + capacity);
         state.transition(RpsState.INITIATED);
     }
@@ -140,7 +162,7 @@ public class RpsAgentSessionHandler {
 
     private void sendRoundReady() throws RpsSessionException {
         LOG.info("sending READY");
-        stub.sendCommand(RpsCommand.A_READY, sessionId, roundId);
+        stub.sendMessage(RpsCommand.A_READY, sessionId, roundId);
         state.transition(RpsState.ROUND_READY);
     }
 
@@ -153,7 +175,7 @@ public class RpsAgentSessionHandler {
 
     private void sendMove(Rps move) throws RpsSessionException {
         LOG.info("sending MOVE");
-        stub.sendCommand(RpsCommand.A_MOVE, sessionId, roundId, move
+        stub.sendMessage(RpsCommand.A_MOVE, sessionId, roundId, move
                 .getRepresentation());
         state.transition(RpsState.MOVE);
     }

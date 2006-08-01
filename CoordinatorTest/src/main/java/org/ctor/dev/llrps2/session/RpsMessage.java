@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class RpsMessage {
     private static final Pattern commandParsePattern = Pattern
@@ -26,9 +27,9 @@ public class RpsMessage {
         this.parameters = parameters;
     }
 
-    public static RpsMessage create(RpsCommand command,
-            RpsCommandParameter[] definitions, String[] parameters) {
-        return new RpsMessage(command, definitions, parameters);
+    public static RpsMessage create(RpsCommand command, String[] parameters) {
+        return new RpsMessage(command, command.getParameterDefinitions(),
+                parameters);
     }
 
     public static RpsMessage parse(RpsRole role, String line)
@@ -72,6 +73,16 @@ public class RpsMessage {
 
     public String[] getParameters() {
         return parameters;
+    }
+
+    public String dump() {
+        if (parameters.length > 0) {
+            return String.format("%s %s", command.getCommand(), StringUtils
+                    .join(parameters, ' '));
+        }
+        else {
+            return command.getCommand();
+        }
     }
 
     public void checkSessionId(String sessionId)
