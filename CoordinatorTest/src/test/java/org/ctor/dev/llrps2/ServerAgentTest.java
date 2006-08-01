@@ -16,12 +16,12 @@ public class ServerAgentTest extends AbstractAgentTest {
 
     private static final int LISTEN_PORT = 12345;
 
-    private SampleAgent agent = null;
+    private SampleServerAgent agent = null;
 
     @Override
     public void setUp() throws IOException {
         super.setUp();
-        agent = new SampleAgent(LISTEN_PORT);
+        agent = new SampleServerAgent(LISTEN_PORT);
         coordinator = createCoordinator();
         agent.start();
     }
