@@ -14,8 +14,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.session.RpsSessionException;
 
-final public class SampleAgent extends Thread {
-    private static final Log LOG = LogFactory.getLog(SampleAgent.class);
+final public class SampleServerAgent extends Thread {
+    private static final Log LOG = LogFactory.getLog(SampleServerAgent.class);
 
     private static final int DEFAULT_LISTEN_PORT = 2006;
 
@@ -23,11 +23,11 @@ final public class SampleAgent extends Thread {
 
     private final int listenPort;
 
-    public SampleAgent() {
+    public SampleServerAgent() {
         this(DEFAULT_LISTEN_PORT);
     }
 
-    public SampleAgent(int listenPort) {
+    public SampleServerAgent(int listenPort) {
         this.listenPort = listenPort;
     }
 
@@ -109,6 +109,6 @@ final public class SampleAgent extends Thread {
     }
 
     public static void main(final String[] arg) {
-        (new SampleAgent()).start();
+        (new SampleServerAgent()).start();
     }
 }
