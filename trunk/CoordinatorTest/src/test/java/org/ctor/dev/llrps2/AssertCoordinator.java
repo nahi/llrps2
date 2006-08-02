@@ -37,7 +37,7 @@ public abstract class AssertCoordinator {
     abstract public void sendHello(int id) throws RpsSessionException;
 
     public void receiveHello(int id) throws RpsSessionException {
-        read(id);
+        ensureMessage(id);
         getHandler(id).receiveHello();
     }
 
@@ -46,7 +46,7 @@ public abstract class AssertCoordinator {
     }
 
     public void receiveInitiate(int id) throws RpsSessionException {
-        read(id);
+        ensureMessage(id);
         getHandler(id).receiveInitiate();
     }
 
@@ -55,7 +55,7 @@ public abstract class AssertCoordinator {
     }
 
     public void receiveRoundReady(int id) throws RpsSessionException {
-        read(id);
+        ensureMessage(id);
         getHandler(id).receiveRoundReady();
     }
 
@@ -64,7 +64,7 @@ public abstract class AssertCoordinator {
     }
 
     public Rps receiveMove(int id) throws RpsSessionException {
-        read(id);
+        ensureMessage(id);
         return getHandler(id).receiveMove();
     }
 
@@ -128,15 +128,22 @@ public abstract class AssertCoordinator {
         return getHandler(id).getCapacity();
     }
 
-    private void read(int id) throws RpsSessionException {
+    private void ensureMessage(int id) throws RpsSessionException {
+        final AssertRpsCoordinatorSessionHandler handler = getHandler(id);
+        if (handler.hasCachedMessage()) {
+            LOG.debug("ensureMessage: message cached");
+            return;
+        }
         try {
+            LOG.debug("ensureMessage: try to read message");
             final Selector selector = Selector.open();
             final SocketChannel channel = getChannel(id);
             channel.configureBlocking(false);
             channel.register(selector, SelectionKey.OP_READ);
             selector.select(selectTimeout);
             if (selector.selectedKeys().size() == 1) {
-                if (getHandler(id).read() > 0) {
+                LOG.debug("read for: " + id);
+                if (handler.read() > 0) {
                     return;
                 }
                 close(id);
@@ -154,6 +161,7 @@ public abstract class AssertCoordinator {
     }
 
     protected AssertRpsCoordinatorSessionHandler getHandler(int id) {
+        LOG.debug("selecting handler for session id: " + id);
         if (!handlerMap.containsKey(id)) {
             throw new IllegalArgumentException("illegal ID");
         }
@@ -161,6 +169,7 @@ public abstract class AssertCoordinator {
     }
 
     private SocketChannel getChannel(int id) {
+        LOG.debug("selecting channel for session id: " + id);
         if (!channelMap.containsKey(id)) {
             throw new IllegalArgumentException("illegal ID");
         }
