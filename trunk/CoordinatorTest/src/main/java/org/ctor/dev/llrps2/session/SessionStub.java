@@ -36,6 +36,7 @@ public class SessionStub {
             throw new IllegalArgumentException("command contains null");
         }
         final RpsMessage message = RpsMessage.create(command, rest);
+        LOG.debug(message.dump());
         writeMessage(message.dump());
     }
 
@@ -71,9 +72,6 @@ public class SessionStub {
             else {
                 buffer.flip();
                 readBuffer.append(CHARSET.decode(buffer));
-                if (readSize > 0) {
-                    LOG.debug("read buffer: " + readBuffer.toString());
-                }
             }
             return readSize;
         }

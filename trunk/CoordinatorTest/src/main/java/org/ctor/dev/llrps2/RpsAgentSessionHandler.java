@@ -36,6 +36,8 @@ public class RpsAgentSessionHandler {
     private String iteration = null;
 
     private String ruleId = null;
+    
+    private int gameCounter = 0;
 
     public RpsAgentSessionHandler(String agentName, SocketChannel channel) {
         this.agentName = agentName;
@@ -95,8 +97,9 @@ public class RpsAgentSessionHandler {
         case C_CALL:
             receiveCall(message);
             stub.checkNoCachedMessage();
-            LOG.warn("An SampleAgent always sends: " + Rps.Rock);
-            sendMove(Rps.Rock);
+            final Rps[] moves = Rps.getCandidates();
+            final Rps move = moves[(++gameCounter % moves.length)];
+            sendMove(move);
             break;
         case C_CLOSE:
             receiveClose(message);
@@ -189,7 +192,7 @@ public class RpsAgentSessionHandler {
         LOG.info("receiving RESULT");
         checkSessionId(message);
         checkRoundId(message);
-        String previousOppositeMove = message
+        final String previousOppositeMove = message
                 .getParameter(RpsCommandParameter.PreviousOppositeMove);
         LOG.info("result previous opposite move: " + previousOppositeMove);
         state.transition(RpsState.RESULT_UPDATED);
