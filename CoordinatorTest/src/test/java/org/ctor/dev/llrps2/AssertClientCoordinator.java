@@ -28,9 +28,9 @@ public class AssertClientCoordinator extends AssertCoordinator {
         try {
             final SocketChannel channel = SocketChannel.open();
             channel.connect(address);
-            final AssertRpsCoordinatorSessionHandler handler = new AssertRpsCoordinatorSessionHandler(
-                    channel);
             final int id = handlerCounter++;
+            final AssertRpsCoordinatorSessionHandler handler = new AssertRpsCoordinatorSessionHandler(
+                    String.valueOf(id), channel);
             handlerMap.put(id, handler);
             channelMap.put(id, channel);
             handler.connect();

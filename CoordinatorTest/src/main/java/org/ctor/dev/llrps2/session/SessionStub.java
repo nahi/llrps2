@@ -49,9 +49,14 @@ public class SessionStub {
         return RpsMessage.parse(oppositeRole, line);
     }
 
-    public void checkNoExtraMessage() {
+    public boolean hasCachedMessage() {
+        return (readBuffer.indexOf(LINE_TERMINATER) != -1);
+    }
+
+    public void checkNoCachedMessage() {
         if (readBuffer.length() != 0) {
-            throw new RpsCommunicationException("bulk messaging is not allowed");
+            throw new RpsCommunicationException("unexpected extra message: "
+                    + readBuffer.toString());
         }
     }
 
@@ -66,6 +71,9 @@ public class SessionStub {
             else {
                 buffer.flip();
                 readBuffer.append(CHARSET.decode(buffer));
+                if (readSize > 0) {
+                    LOG.debug("read buffer: " + readBuffer.toString());
+                }
             }
             return readSize;
         }
@@ -75,11 +83,11 @@ public class SessionStub {
         }
     }
 
-    public void flush() throws IOException {
+    public void flushWrite() throws IOException {
         channel.write(CHARSET.encode(writeBuffer.toString()));
         writeBuffer.setLength(0);
     }
-    
+
     public void close() throws IOException {
         channel.close();
     }

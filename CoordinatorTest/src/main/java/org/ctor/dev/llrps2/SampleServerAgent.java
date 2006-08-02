@@ -23,6 +23,8 @@ final public class SampleServerAgent extends Thread {
 
     private final int listenPort;
 
+    private int sessionCounter = 0;
+
     public SampleServerAgent() {
         this(DEFAULT_LISTEN_PORT);
     }
@@ -47,14 +49,15 @@ final public class SampleServerAgent extends Thread {
                     selectAndProcess(selector, serverChannel);
                 }
                 catch (ClosedByInterruptException cbie) {
-                    LOG.warn(cbie.getMessage(), cbie);
+                    LOG.info(cbie.getMessage());
+                    LOG.debug(cbie.getMessage(), cbie);
                     break;
                 }
-                catch (IOException ioe) {
-                    LOG.warn(ioe.getMessage(), ioe);
+                catch (IOException ie) {
+                    LOG.warn(ie.getMessage(), ie);
                 }
-                catch (RpsSessionException irste) {
-                    LOG.warn(irste.getMessage(), irste);
+                catch (RpsSessionException rse) {
+                    LOG.warn(rse.getMessage(), rse);
                 }
             }
             serverChannel.close();
@@ -62,12 +65,12 @@ final public class SampleServerAgent extends Thread {
         }
         catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(e);
         }
         LOG.info("agent stop");
     }
 
     public void terminate() {
+        LOG.info("terminating the thread");
         interrupt();
     }
 
@@ -75,13 +78,15 @@ final public class SampleServerAgent extends Thread {
             ServerSocketChannel serverChannel) throws IOException,
             RpsSessionException {
         selector.select();
+        LOG.info(String.format("selected %d keys", selector.selectedKeys()
+                .size()));
         for (final SelectionKey key : selector.selectedKeys()) {
             if (key.isAcceptable()) {
                 final SocketChannel channel = serverChannel.accept();
                 if (channel != null) {
                     channel.configureBlocking(false);
                     channel.register(selector, SelectionKey.OP_READ);
-                    LOG.info("accepted");
+                    LOG.info("accepted the new session");
                 }
             }
             else if (key.isReadable()) {
@@ -103,7 +108,8 @@ final public class SampleServerAgent extends Thread {
 
     private RpsAgentSessionHandler getHandler(final SocketChannel channel) {
         if (handlerMap.get(channel) == null) {
-            handlerMap.put(channel, new RpsAgentSessionHandler(channel));
+            handlerMap.put(channel, new RpsAgentSessionHandler(String
+                    .valueOf(sessionCounter++), channel));
         }
         return handlerMap.get(channel);
     }

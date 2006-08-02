@@ -24,6 +24,8 @@ final public class SampleClientAgent extends Thread {
 
     private final InetSocketAddress address;
 
+    private int sessionCounter = 0;
+
     public SampleClientAgent(String host) throws UnknownHostException {
         this(host, DEFAULT_LISTEN_PORT);
     }
@@ -39,41 +41,57 @@ final public class SampleClientAgent extends Thread {
         try {
             final Selector selector = Selector.open();
             while (true) {
-                while (selector.keys().size() < 5) {
-                    final SocketChannel channel = SocketChannel.open();
-                    channel.connect(address);
-                    channel.configureBlocking(false);
-                    channel.register(selector, SelectionKey.OP_READ);
-                    final RpsAgentSessionHandler handler = getHandler(channel);
-                    handler.sendHello();
+                try {
+                    while (selector.keys().size() < 5) {
+                        LOG.info("opening the new session");
+                        final SocketChannel channel = SocketChannel.open();
+                        channel.connect(address);
+                        final RpsAgentSessionHandler handler = getHandler(channel);
+                        handler.sendHello();
+                        channel.configureBlocking(false);
+                        channel.register(selector, SelectionKey.OP_READ);
+                    }
+                    if (selector.keys().size() > 0) {
+                        selectAndProcess(selector);
+                    }
                 }
-                while (selector.keys().size() > 0) {
-                    selectAndProcess(selector);
+                catch (ClosedByInterruptException cbie) {
+                    LOG.info(cbie.getMessage());
+                    LOG.debug(cbie.getMessage(), cbie);
+                    break;
+                }
+                catch (IOException ie) {
+                    LOG.warn(ie.getMessage(), ie);
+                }
+                catch (RpsSessionException rse) {
+                    LOG.warn(rse.getMessage(), rse);
                 }
             }
         }
-        catch(Exception e) {
+        catch (Exception e) {
             LOG.warn(e.getMessage(), e);
         }
+        LOG.info("agent stop");
     }
 
     public void terminate() {
-        LOG.info("terminate");
+        LOG.info("terminating the thread");
         interrupt();
     }
 
-    private void selectAndProcess(Selector selector)
-            throws IOException, RpsSessionException {
+    private void selectAndProcess(Selector selector) throws IOException,
+            RpsSessionException {
         selector.select();
-        for (final SelectionKey key : selector.selectedKeys()) {
+        LOG.info(String.format("selected %d keys", selector.selectedKeys()
+                .size()));
+        for (SelectionKey key : selector.selectedKeys()) {
             if (key.isReadable()) {
-                final SocketChannel channel = (SocketChannel)key.channel();
-                final RpsAgentSessionHandler handler = getHandler(channel); 
+                final SocketChannel channel = (SocketChannel) key.channel();
+                final RpsAgentSessionHandler handler = getHandler(channel);
                 try {
                     handler.handle();
-                    return;
                 }
-                catch(ClosedByInterruptException cbie) {
+                catch (ClosedByInterruptException cbie) {
                     handler.close();
                     throw cbie;
                 }
@@ -91,7 +109,8 @@ final public class SampleClientAgent extends Thread {
 
     private RpsAgentSessionHandler getHandler(final SocketChannel channel) {
         if (handlerMap.get(channel) == null) {
-            handlerMap.put(channel, new RpsAgentSessionHandler(channel));
+            handlerMap.put(channel, new RpsAgentSessionHandler(String
+                    .valueOf(sessionCounter++), channel));
         }
         return handlerMap.get(channel);
     }

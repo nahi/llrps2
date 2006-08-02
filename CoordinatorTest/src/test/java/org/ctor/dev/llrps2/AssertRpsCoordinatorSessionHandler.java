@@ -22,10 +22,11 @@ public class AssertRpsCoordinatorSessionHandler {
     private static final Log LOG = LogFactory
             .getLog(AssertRpsCoordinatorSessionHandler.class);
 
-    protected final RpsStateTransition state = new RpsStateTransition(
-            AssertRpsCoordinatorSessionHandler.class.getName());
+    protected final RpsStateTransition state;
 
     private final SessionStub stub;
+
+    private final String coordinatorName;
 
     private String sessionId = "SESSION-ID_123.456";
 
@@ -41,7 +42,11 @@ public class AssertRpsCoordinatorSessionHandler {
 
     private String capacity = null;
 
-    public AssertRpsCoordinatorSessionHandler(SocketChannel channel) {
+    public AssertRpsCoordinatorSessionHandler(String coordinatorName,
+            SocketChannel channel) {
+        this.coordinatorName = coordinatorName;
+        this.state = new RpsStateTransition(String.format("<COORDINATOR:%s>",
+                this.coordinatorName));
         this.stub = new SessionStub(channel, RpsRole.AGENT);
     }
 
@@ -52,7 +57,7 @@ public class AssertRpsCoordinatorSessionHandler {
     public void sendHello() throws RpsSessionException {
         LOG.info("sending HELLO");
         stub.sendMessage(RpsCommand.C_HELLO);
-        flush();
+        flushWrite();
         state.transition(RpsState.C_HELLO);
     }
 
@@ -60,14 +65,14 @@ public class AssertRpsCoordinatorSessionHandler {
         LOG.info("receiving HELLO");
         final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_HELLO, message.getCommand());
-        stub.checkNoExtraMessage();
+        stub.checkNoCachedMessage();
         state.transition(RpsState.A_HELLO);
     }
 
     public void sendInitiate() throws RpsSessionException {
         LOG.info("sending INITIATE");
         stub.sendMessage(RpsCommand.C_INITIATE, sessionId);
-        flush();
+        flushWrite();
         state.transition(RpsState.C_INITIATION);
     }
 
@@ -75,7 +80,7 @@ public class AssertRpsCoordinatorSessionHandler {
         LOG.info("receiving INITIATE");
         final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_INITIATE, message.getCommand());
-        stub.checkNoExtraMessage();
+        stub.checkNoCachedMessage();
         checkSessionId(message);
         agentName = message.getParameter(RpsCommandParameter.AgentName);
         capacity = message.getParameter(RpsCommandParameter.Capacity);
@@ -86,7 +91,7 @@ public class AssertRpsCoordinatorSessionHandler {
         LOG.info("sending READY");
         stub.sendMessage(RpsCommand.C_READY, sessionId, roundId, iteration,
                 ruleId);
-        flush();
+        flushWrite();
         state.transition(RpsState.C_ROUND_READY);
     }
 
@@ -94,7 +99,7 @@ public class AssertRpsCoordinatorSessionHandler {
         LOG.info("receiving READY");
         final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_READY, message.getCommand());
-        stub.checkNoExtraMessage();
+        stub.checkNoCachedMessage();
         checkSessionId(message);
         checkRoundId(message);
         state.transition(RpsState.ROUND_READY);
@@ -103,7 +108,7 @@ public class AssertRpsCoordinatorSessionHandler {
     public void sendCall() throws RpsSessionException {
         LOG.info("sending CALL");
         stub.sendMessage(RpsCommand.C_CALL, sessionId, roundId);
-        flush();
+        flushWrite();
         state.transition(RpsState.CALL);
     }
 
@@ -112,7 +117,7 @@ public class AssertRpsCoordinatorSessionHandler {
         state.transition(RpsState.MOVE);
         final RpsMessage message = stub.receiveMessage();
         assertEquals(RpsCommand.A_MOVE, message.getCommand());
-        stub.checkNoExtraMessage();
+        stub.checkNoCachedMessage();
         checkSessionId(message);
         checkRoundId(message);
         // XXX
@@ -123,21 +128,21 @@ public class AssertRpsCoordinatorSessionHandler {
         LOG.info("sending RESULT");
         stub.sendMessage(RpsCommand.C_RESULT, sessionId, roundId,
                 previousOppositeMove.getRepresentation());
-        flush();
+        flushWrite();
         state.transition(RpsState.RESULT_UPDATED);
     }
 
     public void sendMatch() throws RpsSessionException {
         LOG.info("sending MATCH");
         stub.sendMessage(RpsCommand.C_MATCH, sessionId, roundId);
-        flush();
+        flushWrite();
         state.transition(RpsState.MATCH);
     }
 
     public void sendClose() throws RpsSessionException {
         LOG.info("sending CLOSE");
         stub.sendMessage(RpsCommand.C_CLOSE, sessionId);
-        flush();
+        flushWrite();
         state.transition(RpsState.C_CLOSE);
     }
 
@@ -147,6 +152,10 @@ public class AssertRpsCoordinatorSessionHandler {
 
     public long read() throws IOException {
         return stub.read();
+    }
+
+    boolean hasCachedMessage() {
+        return stub.hasCachedMessage();
     }
 
     private void checkSessionId(RpsMessage message)
@@ -159,9 +168,9 @@ public class AssertRpsCoordinatorSessionHandler {
         message.checkRoundId(roundId);
     }
 
-    private void flush() throws RpsSessionException {
+    private void flushWrite() throws RpsSessionException {
         try {
-            stub.flush();
+            stub.flushWrite();
         }
         catch (IOException ioe) {
             LOG.warn(ioe.getMessage(), ioe);

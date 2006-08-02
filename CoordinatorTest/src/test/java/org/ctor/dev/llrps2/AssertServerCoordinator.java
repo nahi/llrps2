@@ -17,13 +17,15 @@ import org.ctor.dev.llrps2.session.RpsSessionException;
 
 public class AssertServerCoordinator extends AssertCoordinator implements
         Runnable {
+
     private static final Log LOG = LogFactory
             .getLog(AssertServerCoordinator.class);
 
     private static final int DEFAULT_LISTEN_PORT = 2006;
 
-    private final BlockingQueue<SocketChannel> sessionPool = new ArrayBlockingQueue<SocketChannel>(
-            5);
+    private static final int SESSION_POOL_SIZE = 5;
+
+    private final BlockingQueue<SocketChannel> sessionPool;
 
     private int handlerCounter = 0;
 
@@ -36,6 +38,8 @@ public class AssertServerCoordinator extends AssertCoordinator implements
     }
 
     public AssertServerCoordinator(int listenPort) {
+        this.sessionPool = new ArrayBlockingQueue<SocketChannel>(
+                SESSION_POOL_SIZE);
         this.listenPort = listenPort;
     }
 
@@ -60,13 +64,14 @@ public class AssertServerCoordinator extends AssertCoordinator implements
             serverChannel.socket().bind(new InetSocketAddress(listenPort));
             serverChannel.configureBlocking(false);
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
-            LOG.info("agent start");
+            LOG.info("coordinator start");
             while (true) {
                 try {
                     selectAndProcess(selector, serverChannel);
                 }
                 catch (ClosedByInterruptException cbie) {
-                    LOG.warn(cbie.getMessage(), cbie);
+                    LOG.info(cbie.getMessage());
+                    LOG.debug(cbie.getMessage(), cbie);
                     break;
                 }
                 catch (IOException ioe) {
@@ -78,14 +83,13 @@ public class AssertServerCoordinator extends AssertCoordinator implements
         }
         catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(e);
         }
-        LOG.info("agent stop");
+        LOG.info("coordinator stop");
     }
 
     public void terminate() {
         if (thread != null) {
-            LOG.info("terminate");
+            LOG.info("terminating the thread");
             thread.interrupt();
         }
     }
@@ -94,13 +98,11 @@ public class AssertServerCoordinator extends AssertCoordinator implements
     public int connect() throws RpsSessionException {
         try {
             final SocketChannel channel = sessionPool.take();
+            assert (channel != null);
             LOG.info("assign a channel from session pool");
-            if (channel == null) {
-                throw new IllegalStateException();
-            }
-            final AssertRpsCoordinatorSessionHandler handler = new AssertRpsCoordinatorSessionHandler(
-                    channel);
             final int id = handlerCounter++;
+            final AssertRpsCoordinatorSessionHandler handler = new AssertRpsCoordinatorSessionHandler(
+                    String.valueOf(id), channel);
             handlerMap.put(id, handler);
             channelMap.put(id, channel);
             handler.connect();
@@ -120,8 +122,8 @@ public class AssertServerCoordinator extends AssertCoordinator implements
             if (key.isAcceptable()) {
                 final SocketChannel channel = serverChannel.accept();
                 if (channel != null) {
-                    LOG.info("accepted");
                     sessionPool.add(channel);
+                    LOG.info("accepted the new session");
                 }
             }
             else {
