@@ -2,17 +2,11 @@ package org.ctor.dev.llrps2;
 
 import java.io.IOException;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public abstract class AbstractAgentTest extends TestCase {
     public AbstractAgentTest(String testName) {
         super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(AbstractAgentTest.class);
     }
 
     protected AssertCoordinator coordinator = null;
