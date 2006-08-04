@@ -7,8 +7,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,9 +21,7 @@ public class AssertServerCoordinator extends AssertCoordinator implements
     private static final Log LOG = LogFactory
             .getLog(AssertServerCoordinator.class);
 
-    private static final int DEFAULT_LISTEN_PORT = 2006;
-
-    private static final int SESSION_POOL_SIZE = 5;
+    private static final int DEFAULT_LISTEN_PORT = 12346;
 
     private final BlockingQueue<SocketChannel> sessionPool;
 
@@ -38,8 +36,7 @@ public class AssertServerCoordinator extends AssertCoordinator implements
     }
 
     public AssertServerCoordinator(int listenPort) {
-        this.sessionPool = new ArrayBlockingQueue<SocketChannel>(
-                SESSION_POOL_SIZE);
+        this.sessionPool = new LinkedBlockingQueue<SocketChannel>();
         this.listenPort = listenPort;
     }
 
@@ -79,12 +76,28 @@ public class AssertServerCoordinator extends AssertCoordinator implements
                 }
             }
             serverChannel.close();
+            closeAll();
+            closeSessionPool();
             selector.close();
         }
         catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
+        System.gc();
         LOG.info("coordinator stop");
+    }
+
+    private void closeSessionPool() {
+        final SocketChannel[] pooled = sessionPool
+                .toArray(new SocketChannel[0]);
+        for (SocketChannel channel : pooled) {
+            try {
+                channel.close();
+            }
+            catch (IOException ioe) {
+                LOG.debug(ioe.getMessage(), ioe);
+            }
+        }
     }
 
     public void terminate() {
@@ -97,6 +110,9 @@ public class AssertServerCoordinator extends AssertCoordinator implements
     @Override
     public int connect() throws RpsSessionException {
         try {
+            LOG.info(String.format(
+                    "connect: assigning a channel... (pool size: %d)",
+                    sessionPool.size()));
             final SocketChannel channel = sessionPool.take();
             assert (channel != null);
             LOG.info("assign a channel from session pool");

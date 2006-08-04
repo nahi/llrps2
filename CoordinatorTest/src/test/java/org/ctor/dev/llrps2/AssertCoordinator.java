@@ -25,13 +25,25 @@ public abstract class AssertCoordinator {
 
     abstract public int connect() throws RpsSessionException;
 
+    public void closeAll() {
+        final Integer[] ids = channelMap.keySet().toArray(new Integer[0]);
+        for (int id : ids) {
+            close(id);
+        }
+        handlerMap.clear();
+        channelMap.clear();
+    }
+
     public void close(int id) {
+        final AssertRpsCoordinatorSessionHandler handler = getHandler(id);
         try {
-            getHandler(id).close();
+            handler.close();
         }
         catch (IOException ioe) {
             LOG.warn(ioe.getMessage(), ioe);
         }
+        handlerMap.remove(handler);
+        channelMap.remove(getChannel(id));
     }
 
     abstract public void sendHello(int id) throws RpsSessionException;
@@ -134,9 +146,10 @@ public abstract class AssertCoordinator {
             LOG.debug("ensureMessage: message cached");
             return;
         }
+        LOG.debug("ensureMessage: try to read message");
+        Selector selector = null;
         try {
-            LOG.debug("ensureMessage: try to read message");
-            final Selector selector = Selector.open();
+            selector = Selector.open();
             final SocketChannel channel = getChannel(id);
             channel.configureBlocking(false);
             channel.register(selector, SelectionKey.OP_READ);
@@ -157,6 +170,14 @@ public abstract class AssertCoordinator {
             LOG.warn(ioe.getMessage(), ioe);
             close(id);
             throw new RpsSessionException(ioe);
+        }
+        finally {
+            try {
+                selector.close();
+            }
+            catch (IOException ioe) {
+                LOG.debug(ioe.getMessage(), ioe);
+            }
         }
     }
 
