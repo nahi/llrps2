@@ -9,16 +9,22 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.session.RpsSessionException;
 
 final public class SampleClientAgent extends Thread {
+    private static final int SESSION_POOL_SIZE = 20;
+
     private static final Log LOG = LogFactory.getLog(SampleClientAgent.class);
 
-    private static final int DEFAULT_LISTEN_PORT = 2006;
+    private static final int DEFAULT_LISTEN_PORT = 12346;
+
+    private final Set<SocketChannel> sessionPool = new HashSet<SocketChannel>();
 
     private final Map<SocketChannel, RpsAgentSessionHandler> handlerMap = new HashMap<SocketChannel, RpsAgentSessionHandler>();
 
@@ -41,19 +47,15 @@ final public class SampleClientAgent extends Thread {
         try {
             final Selector selector = Selector.open();
             while (true) {
+                while (sessionPool.size() < SESSION_POOL_SIZE) {
+                    final SocketChannel channel = createChannel();
+                    channel.configureBlocking(false);
+                    channel.register(selector, SelectionKey.OP_READ);
+                    sessionPool.add(channel);
+                }
                 try {
-                    while (selector.keys().size() < 5) {
-                        LOG.info("opening the new session");
-                        final SocketChannel channel = SocketChannel.open();
-                        channel.connect(address);
-                        final RpsAgentSessionHandler handler = getHandler(channel);
-                        handler.sendHello();
-                        channel.configureBlocking(false);
-                        channel.register(selector, SelectionKey.OP_READ);
-                    }
-                    if (selector.keys().size() > 0) {
-                        selectAndProcess(selector);
-                    }
+                    LOG.info("sessions: " + sessionPool.size());
+                    selectAndProcess(selector);
                 }
                 catch (ClosedByInterruptException cbie) {
                     LOG.info(cbie.getMessage());
@@ -67,11 +69,34 @@ final public class SampleClientAgent extends Thread {
                     LOG.warn(rse.getMessage(), rse);
                 }
             }
+            closeSessionPool();
+            selector.close();
         }
         catch (Exception e) {
             LOG.warn(e.getMessage(), e);
         }
         LOG.info("agent stop");
+    }
+
+    private void closeSessionPool() {
+        for (SocketChannel channel : sessionPool.toArray(new SocketChannel[0])) {
+            try {
+                channel.close();
+            }
+            catch (IOException ioe) {
+                LOG.debug(ioe.getMessage(), ioe);
+            }
+        }
+    }
+
+    private SocketChannel createChannel() throws IOException,
+            RpsSessionException {
+        LOG.info("creating the new session");
+        final SocketChannel channel = SocketChannel.open();
+        channel.connect(address);
+        final RpsAgentSessionHandler handler = getHandler(channel);
+        handler.sendHello();
+        return channel;
     }
 
     public void terminate() {
@@ -92,10 +117,12 @@ final public class SampleClientAgent extends Thread {
                     handler.handle();
                 }
                 catch (ClosedByInterruptException cbie) {
+                    removeSession(channel);
                     handler.close();
                     throw cbie;
                 }
                 catch (Exception e) {
+                    removeSession(channel);
                     handler.close();
                     LOG.warn(e.getMessage(), e);
                     throw new RpsSessionException(e);
@@ -107,7 +134,12 @@ final public class SampleClientAgent extends Thread {
         }
     }
 
-    private RpsAgentSessionHandler getHandler(final SocketChannel channel) {
+    private void removeSession(SocketChannel channel) {
+        sessionPool.remove(channel);
+        handlerMap.remove(channel);
+    }
+
+    private RpsAgentSessionHandler getHandler(SocketChannel channel) {
         if (handlerMap.get(channel) == null) {
             handlerMap.put(channel, new RpsAgentSessionHandler(String
                     .valueOf(sessionCounter++), channel));
