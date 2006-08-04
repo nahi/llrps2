@@ -17,7 +17,7 @@ import org.ctor.dev.llrps2.session.RpsSessionException;
 final public class SampleServerAgent extends Thread {
     private static final Log LOG = LogFactory.getLog(SampleServerAgent.class);
 
-    private static final int DEFAULT_LISTEN_PORT = 2006;
+    private static final int DEFAULT_LISTEN_PORT = 12346;
 
     private final Map<SocketChannel, RpsAgentSessionHandler> handlerMap = new HashMap<SocketChannel, RpsAgentSessionHandler>();
 
