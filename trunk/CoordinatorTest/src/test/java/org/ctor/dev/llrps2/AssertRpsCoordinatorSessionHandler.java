@@ -36,7 +36,7 @@ public class AssertRpsCoordinatorSessionHandler {
 
     private String ruleId = "123";
 
-    private Rps previousOppositeMove = Rps.Rock;
+    private Rps previousOppositeMove = Rps.NotAMove;
 
     private String agentName = null;
 
@@ -120,8 +120,9 @@ public class AssertRpsCoordinatorSessionHandler {
         stub.checkNoCachedMessage();
         checkSessionId(message);
         checkRoundId(message);
-        // XXX
-        return Rps.Rock;
+        final Rps move = Rps.parse(message
+                .getParameter(RpsCommandParameter.Move));
+        return move;
     }
 
     public void sendResultUpdate() throws RpsSessionException {
