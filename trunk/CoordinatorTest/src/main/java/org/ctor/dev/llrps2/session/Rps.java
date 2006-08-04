@@ -11,7 +11,7 @@ public enum Rps {
     Paper("3");
 
     private static final Rps[] candidates = new Rps[] { Rock, Scissors, Paper };
-    
+
     private final String representation;
 
     private Rps(String representation) {
@@ -31,7 +31,7 @@ public enum Rps {
         }
         throw new NoSuchRpsMoveException(representation);
     }
-    
+
     public static Rps[] getCandidates() {
         return candidates;
     }
