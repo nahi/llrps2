@@ -5,29 +5,22 @@ import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class ServerAgentTest extends AbstractAgentTest {
-    public ServerAgentTest(String testName) {
+public class SampleServerAgentTest extends TestServerAgent {
+    public SampleServerAgentTest(String testName) {
         super(testName);
     }
 
     public static Test suite() {
-        return new TestSuite(ServerAgentTest.class);
+        return new TestSuite(SampleServerAgentTest.class);
     }
-
-    private static final int LISTEN_PORT = 12345;
 
     private SampleServerAgent agent = null;
 
     @Override
     public void setUp() throws IOException {
         super.setUp();
-        agent = new SampleServerAgent(LISTEN_PORT);
-        coordinator = createCoordinator();
+        agent = new SampleServerAgent(listenPort);
         agent.start();
-    }
-
-    private AssertClientCoordinator createCoordinator() throws IOException {
-        return new AssertClientCoordinator(null, LISTEN_PORT);
     }
 
     @Override
