@@ -2,10 +2,12 @@ package org.ctor.dev.llrps2.session;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,7 +38,6 @@ public class SessionStub {
             throw new IllegalArgumentException("command contains null");
         }
         final RpsMessage message = RpsMessage.create(command, rest);
-        LOG.debug(message.dump());
         writeMessage(message.dump());
     }
 
@@ -47,7 +48,9 @@ public class SessionStub {
         }
         final String line = readBuffer.substring(0, pos);
         readBuffer.delete(0, pos + LINE_TERMINATER.length());
-        return RpsMessage.parse(oppositeRole, line);
+        final RpsMessage message = RpsMessage.parse(oppositeRole, line);
+        LOG.debug("received message: " + message.dump());
+        return message;
     }
 
     public boolean hasCachedMessage() {
@@ -66,8 +69,10 @@ public class SessionStub {
             final ByteBuffer buffer = ByteBuffer.allocate(READ_BUFFER_SIZE);
             final long readSize = channel.read(buffer);
             if (readSize == -1) {
-                LOG.info("reached end of stream");
                 close();
+                LOG.info("reached end of stream");
+                throw new IOException("reached end of stream: read returns "
+                        + readSize);
             }
             else {
                 buffer.flip();
@@ -76,18 +81,34 @@ public class SessionStub {
             return readSize;
         }
         catch (IOException ioe) {
+            close();
             LOG.info(ioe.getMessage(), ioe);
             throw ioe;
         }
     }
 
     public void flushWrite() throws IOException {
-        channel.write(CHARSET.encode(writeBuffer.toString()));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(StringUtils.chop("sending message(s): "
+                    + writeBuffer.toString()));
+        }
+        try {
+            channel.write(CHARSET.encode(writeBuffer.toString()));
+        }
+        catch (ClosedChannelException cce) {
+            LOG.debug(cce.getMessage(), cce);
+        }
         writeBuffer.setLength(0);
     }
 
     public void close() throws IOException {
-        channel.close();
+        LOG.info("closing channel");
+        try {
+            channel.close();
+        }
+        catch (ClosedChannelException cce) {
+            LOG.debug(cce.getMessage(), cce);
+        }
     }
 
     private void writeMessage(String message) {

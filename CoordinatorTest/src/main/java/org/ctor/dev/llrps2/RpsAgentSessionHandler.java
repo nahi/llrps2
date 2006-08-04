@@ -36,7 +36,7 @@ public class RpsAgentSessionHandler {
     private String iteration = null;
 
     private String ruleId = null;
-    
+
     private int gameCounter = 0;
 
     public RpsAgentSessionHandler(String agentName, SocketChannel channel) {
@@ -92,7 +92,8 @@ public class RpsAgentSessionHandler {
     }
 
     // XXX use commands if the spec is fixed >> gotoken
-    private void handleMessage(RpsMessage message) throws RpsSessionException {
+    private void handleMessage(RpsMessage message) throws IOException,
+            RpsSessionException {
         switch (message.getCommand()) {
         case C_CALL:
             receiveCall(message);
@@ -104,6 +105,7 @@ public class RpsAgentSessionHandler {
         case C_CLOSE:
             receiveClose(message);
             stub.checkNoCachedMessage();
+            close();
             break;
         case C_HELLO:
             receiveHello(message);
