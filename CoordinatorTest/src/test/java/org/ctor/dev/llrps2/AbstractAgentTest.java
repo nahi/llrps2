@@ -64,9 +64,11 @@ public abstract class AbstractAgentTest extends TestCase {
     private void scenarioJustOneMove(Rps move) throws Exception {
         final int id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
         for (int round = 0; round < scenarioRoundNumber; ++round) {
+            coordinator().setRoundId(id, String.format("R_%d", round));
             coordinator().sendRoundReady(id);
             coordinator().receiveRoundReady(id);
             for (int idx = 0; idx < scenarioGameNumber; ++idx) {
@@ -96,9 +98,11 @@ public abstract class AbstractAgentTest extends TestCase {
     public void testScenarioRotate() throws Exception {
         final int id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
         for (int round = 0; round < scenarioRoundNumber; ++round) {
+            coordinator().setRoundId(id, String.format("R_%d", round));
             coordinator().sendRoundReady(id);
             coordinator().receiveRoundReady(id);
             for (int idx = 0; idx < scenarioGameNumber; ++idx) {
@@ -118,9 +122,11 @@ public abstract class AbstractAgentTest extends TestCase {
     public void testScenarioCopy() throws Exception {
         final int id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
         for (int round = 0; round < scenarioRoundNumber; ++round) {
+            coordinator().setRoundId(id, String.format("R_%d", round));
             coordinator().sendRoundReady(id);
             coordinator().receiveRoundReady(id);
             Rps previous = Rps.NotAMove;
@@ -139,9 +145,11 @@ public abstract class AbstractAgentTest extends TestCase {
     public void testScenarioCopy2() throws Exception {
         final int id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
         for (int round = 0; round < scenarioRoundNumber; ++round) {
+            coordinator().setRoundId(id, String.format("R_%d", round));
             coordinator().sendRoundReady(id);
             coordinator().receiveRoundReady(id);
             Rps previous1 = Rps.Rock;
@@ -163,15 +171,19 @@ public abstract class AbstractAgentTest extends TestCase {
         final int id1 = coordinator().connect();
         coordinator().sendHello(id1);
         final int id2 = coordinator().connect();
+        coordinator().setSessionId(id1, "S1");
         coordinator().sendInitiate(id1);
         coordinator().sendHello(id2);
+        coordinator().setSessionId(id2, "S2");
         coordinator().sendInitiate(id2);
         final int id3 = coordinator().connect();
         coordinator().close(id3);
         coordinator().receiveInitiate(id2);
         coordinator().receiveInitiate(id1);
         for (int round = 0; round < 2; ++round) {
+            coordinator().setRoundId(id2, String.format("R_%d", round));
             coordinator().sendRoundReady(id2);
+            coordinator().setRoundId(id1, String.format("R_%d", round));    // same as S2
             coordinator().sendRoundReady(id1);
             coordinator().receiveRoundReady(id1);
             coordinator().receiveRoundReady(id2);
@@ -197,6 +209,7 @@ public abstract class AbstractAgentTest extends TestCase {
     public void testSendCloseWithoutReady() throws Exception {
         final int id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
         coordinator().sendClose(id);
@@ -206,8 +219,10 @@ public abstract class AbstractAgentTest extends TestCase {
     public void testSendMatchWithoutCall() throws Exception {
         final int id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, String.format("R_%d", 123));
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().sendMatch(id);
@@ -240,34 +255,42 @@ public abstract class AbstractAgentTest extends TestCase {
     public void testUnexpectedClose() throws Exception {
         int id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().close(id);
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
         coordinator().close(id);
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().close(id);
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().close(id);
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().sendCall(id);
@@ -275,8 +298,10 @@ public abstract class AbstractAgentTest extends TestCase {
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().sendCall(id);
@@ -285,8 +310,10 @@ public abstract class AbstractAgentTest extends TestCase {
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().sendCall(id);
@@ -296,8 +323,10 @@ public abstract class AbstractAgentTest extends TestCase {
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().sendCall(id);
@@ -308,8 +337,10 @@ public abstract class AbstractAgentTest extends TestCase {
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().sendCall(id);
@@ -321,8 +352,10 @@ public abstract class AbstractAgentTest extends TestCase {
         //
         id = coordinator().connect();
         coordinator().sendHello(id);
+        coordinator().setSessionId(id, "S1");
         coordinator().sendInitiate(id);
         coordinator().receiveInitiate(id);
+        coordinator().setRoundId(id, "R1");
         coordinator().sendRoundReady(id);
         coordinator().receiveRoundReady(id);
         coordinator().sendCall(id);
