@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.url">jdbc:postgresql://localhost/llrps2</property>
+        <property name="connection.username">llrps2</property>
+        <property name="connection.password">llrps2</property>
+        <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="show_sql">true</property>
+        
+        <mapping package="org.ctor.dev.llrps2.model"/>
+        <mapping class="org.ctor.dev.llrps2.model.Agent"/>
+    </session-factory>
+</hibernate-configuration>
