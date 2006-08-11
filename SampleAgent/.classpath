@@ -11,5 +11,6 @@
 	<classpathentry sourcepath="M2_REPO/commons-logging/commons-logging/1.1/commons-logging-1.1-sources.jar" kind="var" path="M2_REPO/commons-logging/commons-logging/1.1/commons-logging-1.1.jar"/>
 	<classpathentry sourcepath="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1-sources.jar" kind="var" path="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CoordinatorTest"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Coordinator"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
