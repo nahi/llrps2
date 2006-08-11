@@ -1,6 +1,7 @@
-#Sun Jul 30 11:26:30 JST 2006
+#Fri Aug 11 21:13:51 JST 2006
 eclipse.preferences.version=1
-formatter_settings_version=8
+formatter_profile=_Eclipse + Control Statements - newline
+formatter_settings_version=10
 internal.default.compliance=user
 org.eclipse.jdt.ui.exception.name=e
 org.eclipse.jdt.ui.gettersetter.use.is=true
