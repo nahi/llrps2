@@ -46,5 +46,25 @@
       <artifactId>commons-lang</artifactId>
       <version>[2,)</version>
     </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.0.cr1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+      <version>3.2.0.cr1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-tools</artifactId>
+      <version>3.2.0.beta6</version>
+    </dependency>
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>8.1-407.jdbc3</version>
+    </dependency>
   </dependencies>
 </project>
