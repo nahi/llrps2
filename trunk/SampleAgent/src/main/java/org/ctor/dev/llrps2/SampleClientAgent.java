@@ -148,6 +148,11 @@ final public class SampleClientAgent extends Thread {
     }
 
     public static void main(final String[] arg) throws UnknownHostException {
-        (new SampleClientAgent(null)).start();
+        if (arg.length != 2) {
+            throw new IllegalArgumentException("host and port required");
+        }
+        final String host = arg[0];
+        final int port = Integer.parseInt(arg[1]);
+        (new SampleClientAgent(host, port)).start();
     }
 }
