@@ -7,34 +7,38 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.apache.commons.lang.Validate;
-import org.hibernate.validator.NotNull;
 
 @Entity
 public class Agent {
-    @Id @GeneratedValue(strategy=GenerationType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
-    
+
     @Column
     private String name = null;
 
-    @Column @NotNull
+    @Column(nullable = false)
     private final String ipAddress;
 
-    private Agent() {
-        // for persister
-        this.ipAddress = null;
+    static Agent create(String ipAddress) {
+        Validate.notNull(ipAddress);
+        return new Agent(ipAddress);
     }
-    
-    Agent(String ipAddress) {
-        Validate.notNull(ipAddress, "ipAddress");
+
+    Agent() {
+        this(null);
+    }
+
+    private Agent(String ipAddress) {
         this.ipAddress = ipAddress;
     }
-    
+
     public Long getId() {
         return id;
     }
-    
+
     void setName(String name) {
+        Validate.notNull(name);
         this.name = name;
     }
 
