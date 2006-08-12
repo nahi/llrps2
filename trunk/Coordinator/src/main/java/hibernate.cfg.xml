@@ -13,5 +13,6 @@
         
         <mapping package="org.ctor.dev.llrps2.model"/>
         <mapping class="org.ctor.dev.llrps2.model.Agent"/>
+        <mapping class="org.ctor.dev.llrps2.model.Round"/>
     </session-factory>
 </hibernate-configuration>

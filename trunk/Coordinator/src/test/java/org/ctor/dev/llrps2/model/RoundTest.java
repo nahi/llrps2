@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class AgentTest {
+public class RoundTest {
     private static SessionFactory sessionFactory = null;
 
     private Session session = null;
@@ -38,19 +38,40 @@ public class AgentTest {
     public void testDbAccess() {
         final Transaction xaction = session.beginTransaction();
         clean();
-        for (int idx = 0; idx < 5; ++idx) {
+        createAgents(5);
+        final int rounds = 15;
+        final List<Agent> agents = session.createCriteria(Agent.class).list();
+        for (int idx = 0; idx < rounds; ++idx) {
+            final Agent left = agents.get(randomIndex(agents.size()));
+            // the right may be the same as the left.  never mind.
+            final Agent right = agents.get(randomIndex(agents.size()));
+            final Round newRound = new Round(left, right);
+            session.save(newRound);
+        }
+        assertEquals(rounds, session.createCriteria(Round.class).list().size());
+        xaction.commit();
+    }
+
+    private void createAgents(int agents) {
+        for (int idx = 0; idx < agents; ++idx) {
             final Agent newAgent = new Agent("192.168.1." + idx);
             newAgent.setName("agent_" + idx);
             session.save(newAgent);
         }
-        assertEquals(5, session.createCriteria(Agent.class).list().size());
-        xaction.commit();
+    }
+    
+    private int randomIndex(int size) {
+        return (int)(Math.random() * size);
     }
 
     private void clean() {
         for (Agent agent : (List<Agent>) session.createCriteria(Agent.class)
                 .list()) {
             session.delete(agent);
+        }
+        for (Round round : (List<Round>) session.createCriteria(Round.class)
+                .list()) {
+            session.delete(round);
         }
     }
 }

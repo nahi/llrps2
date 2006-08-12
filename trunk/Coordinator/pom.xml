@@ -41,7 +41,7 @@
                     configurationfile="src/main/java/hibernate.cfg.xml"/>
                   <hbm2ddl drop="true"
                     create="true"
-                    export="${export}"
+                    export="false"
                     outputfilename="sql/llrps2.ddl"
                     delimiter=";" format="true"/>
                 </hibernatetool>
@@ -67,11 +67,6 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>[1.2,)</version>
-          </dependency>
-          <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>8.1-407.jdbc3</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -102,7 +97,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
-      <version>3.2.0.cr1</version>
+      <version>3.2.0.cr2</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
