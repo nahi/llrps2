@@ -10,19 +10,20 @@
     <fileset dir="${maven.repo.local}">
       <include name="javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
       <include name="javax/servlet/servlet-api/2.3/servlet-api-2.3.jar"/>
-      <include name="log4j/log4j/1.2.12/log4j-1.2.12.jar"/>
       <include name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+      <include name="log4j/log4j/1.2.12/log4j-1.2.12.jar"/>
       <include name="dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
       <include name="cglib/cglib/2.1_3/cglib-2.1_3.jar"/>
       <include name="ehcache/ehcache/1.1/ehcache-1.1.jar"/>
-      <include name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
-      <include name="commons-lang/commons-lang/2.1/commons-lang-2.1.jar"/>
       <include name="asm/asm-attrs/1.5.3/asm-attrs-1.5.3.jar"/>
+      <include name="commons-lang/commons-lang/2.1/commons-lang-2.1.jar"/>
+      <include name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
       <include name="org/hibernate/hibernate-annotations/3.2.0.cr1/hibernate-annotations-3.2.0.cr1.jar"/>
       <include name="javax/persistence/ejb/3.0-public-draft-20060502/ejb-3.0-public-draft-20060502.jar"/>
       <include name="logkit/logkit/1.0.1/logkit-1.0.1.jar"/>
-      <include name="asm/asm/1.5.3/asm-1.5.3.jar"/>
+      <include name="org/springframework/spring/2.0-rc2/spring-2.0-rc2.jar"/>
       <include name="commons-collections/commons-collections/2.1.1/commons-collections-2.1.1.jar"/>
+      <include name="asm/asm/1.5.3/asm-1.5.3.jar"/>
       <include name="avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
       <include name="postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar"/>
       <include name="org/hibernate/hibernate/3.2.0.cr1/hibernate-3.2.0.cr1.jar"/>
@@ -34,23 +35,7 @@
   <target name="clean" description="Clean the output directory">
     <delete dir="${maven.build.directory}"/>
   </target>
-  <taskdef name="hibernatetool"
-      classname="org.hibernate.tool.ant.HibernateToolTask">
-    <classpath>
-      <path refid="build.classpath"/>
-      <pathelement location="${maven.build.output}"/>
-    </classpath>
-  </taskdef>
-
-  <target depends="compile" name="generate.ddl">
-    <hibernatetool destdir=".">
-      <annotationconfiguration
-          configurationfile="src/main/java/hibernate.cfg.xml"/>
-      <hbm2ddl export="false" outputfilename="llrps2.sql"/>
-      <hbm2ddl export="false" drop="true" outputfilename="llrps2_drop.sql"/>
-    </hibernatetool>
-  </target>
-  <target name="compile" description="Compile the code">
+  <target name="compile" depends="get-deps" description="Compile the code">
     <mkdir dir="${maven.build.output}"/>
     <javac destdir="${maven.build.output}" excludes="**/package.html" debug="true" deprecation="true" optimize="false">
       <src>
@@ -110,19 +95,20 @@
     <mkdir dir="${maven.repo.local}"/>
     <get src="http://repo1.maven.org/maven2/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar" dest="${maven.repo.local}/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar" dest="${maven.repo.local}/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar" usetimestamp="true" ignoreerrors="true"/>
-    <get src="http://repo1.maven.org/maven2/log4j/log4j/1.2.12/log4j-1.2.12.jar" dest="${maven.repo.local}/log4j/log4j/1.2.12/log4j-1.2.12.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" dest="${maven.repo.local}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" usetimestamp="true" ignoreerrors="true"/>
+    <get src="http://repo1.maven.org/maven2/log4j/log4j/1.2.12/log4j-1.2.12.jar" dest="${maven.repo.local}/log4j/log4j/1.2.12/log4j-1.2.12.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" dest="${maven.repo.local}/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/cglib/cglib/2.1_3/cglib-2.1_3.jar" dest="${maven.repo.local}/cglib/cglib/2.1_3/cglib-2.1_3.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/ehcache/ehcache/1.1/ehcache-1.1.jar" dest="${maven.repo.local}/ehcache/ehcache/1.1/ehcache-1.1.jar" usetimestamp="true" ignoreerrors="true"/>
-    <get src="http://repo1.maven.org/maven2/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar" dest="${maven.repo.local}/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar" usetimestamp="true" ignoreerrors="true"/>
-    <get src="http://repo1.maven.org/maven2/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" dest="${maven.repo.local}/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/asm/asm-attrs/1.5.3/asm-attrs-1.5.3.jar" dest="${maven.repo.local}/asm/asm-attrs/1.5.3/asm-attrs-1.5.3.jar" usetimestamp="true" ignoreerrors="true"/>
+    <get src="http://repo1.maven.org/maven2/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" dest="${maven.repo.local}/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" usetimestamp="true" ignoreerrors="true"/>
+    <get src="http://repo1.maven.org/maven2/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar" dest="${maven.repo.local}/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/org/hibernate/hibernate-annotations/3.2.0.cr1/hibernate-annotations-3.2.0.cr1.jar" dest="${maven.repo.local}/org/hibernate/hibernate-annotations/3.2.0.cr1/hibernate-annotations-3.2.0.cr1.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/javax/persistence/ejb/3.0-public-draft-20060502/ejb-3.0-public-draft-20060502.jar" dest="${maven.repo.local}/javax/persistence/ejb/3.0-public-draft-20060502/ejb-3.0-public-draft-20060502.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/logkit/logkit/1.0.1/logkit-1.0.1.jar" dest="${maven.repo.local}/logkit/logkit/1.0.1/logkit-1.0.1.jar" usetimestamp="true" ignoreerrors="true"/>
-    <get src="http://repo1.maven.org/maven2/asm/asm/1.5.3/asm-1.5.3.jar" dest="${maven.repo.local}/asm/asm/1.5.3/asm-1.5.3.jar" usetimestamp="true" ignoreerrors="true"/>
+    <get src="http://repo1.maven.org/maven2/org/springframework/spring/2.0-rc2/spring-2.0-rc2.jar" dest="${maven.repo.local}/org/springframework/spring/2.0-rc2/spring-2.0-rc2.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/commons-collections/commons-collections/2.1.1/commons-collections-2.1.1.jar" dest="${maven.repo.local}/commons-collections/commons-collections/2.1.1/commons-collections-2.1.1.jar" usetimestamp="true" ignoreerrors="true"/>
+    <get src="http://repo1.maven.org/maven2/asm/asm/1.5.3/asm-1.5.3.jar" dest="${maven.repo.local}/asm/asm/1.5.3/asm-1.5.3.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar" dest="${maven.repo.local}/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar" dest="${maven.repo.local}/postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar" usetimestamp="true" ignoreerrors="true"/>
     <get src="http://repo1.maven.org/maven2/org/hibernate/hibernate/3.2.0.cr1/hibernate-3.2.0.cr1.jar" dest="${maven.repo.local}/org/hibernate/hibernate/3.2.0.cr1/hibernate-3.2.0.cr1.jar" usetimestamp="true" ignoreerrors="true"/>

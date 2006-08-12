@@ -22,6 +22,59 @@
           <target>1.5</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>process-classes</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <tasks>
+                <property name="export" value="false"/>
+                <mkdir dir="target/generated-sources/sql"/>
+                <taskdef name="hibernatetool"
+                  classname="org.hibernate.tool.ant.HibernateToolTask"/>
+                <hibernatetool destdir="target/generated-sources">
+                  <classpath refid="maven.compile.classpath"/>
+                  <annotationconfiguration
+                    configurationfile="src/main/java/hibernate.cfg.xml"/>
+                  <hbm2ddl drop="true"
+                    create="true"
+                    export="${export}"
+                    outputfilename="sql/llrps2.ddl"
+                    delimiter=";" format="true"/>
+                </hibernatetool>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-tools</artifactId>
+            <version>3.2.0.beta6</version>
+          </dependency>
+          <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-annotations</artifactId>
+            <version>3.2.0.cr1</version>
+          </dependency>
+          <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>[1.2,)</version>
+          </dependency>
+          <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>8.1-407.jdbc3</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -65,6 +118,11 @@
       <groupId>postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>8.1-407.jdbc3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>2.0-rc2</version>
     </dependency>
   </dependencies>
 </project>
