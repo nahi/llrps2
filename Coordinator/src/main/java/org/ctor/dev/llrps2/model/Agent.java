@@ -12,32 +12,29 @@ import org.hibernate.validator.NotNull;
 @Entity
 public class Agent {
     @Id @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id = null;
+    private final Long id = null;
     
     @Column
     private String name = null;
 
     @Column @NotNull
-    private String ipAddress = null;
+    private final String ipAddress;
 
     private Agent() {
         // for persister
+        this.ipAddress = null;
     }
     
     Agent(String ipAddress) {
         Validate.notNull(ipAddress, "ipAddress");
         this.ipAddress = ipAddress;
     }
-
-    void setId(Long id) {
-        this.id = id;
-    }
     
     public Long getId() {
         return id;
     }
     
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
@@ -45,10 +42,6 @@ public class Agent {
         return name;
     }
 
-    void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-    
     public String getIpAddress() {
         return ipAddress;
     }
