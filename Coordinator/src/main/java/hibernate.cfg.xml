@@ -12,10 +12,11 @@
         <property name="show_sql">true</property>
         
         <mapping package="org.ctor.dev.llrps2.model"/>
-        <mapping class="org.ctor.dev.llrps2.model.Competition"/>
+        <mapping class="org.ctor.dev.llrps2.model.Contest"/>
         <mapping class="org.ctor.dev.llrps2.model.Round"/>
         <mapping class="org.ctor.dev.llrps2.model.Game"/>
         <mapping class="org.ctor.dev.llrps2.model.RoundPlayer"/>
+        <mapping class="org.ctor.dev.llrps2.model.RoundResult"/>
         <mapping class="org.ctor.dev.llrps2.model.Agent"/>
     </session-factory>
 </hibernate-configuration>

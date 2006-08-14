@@ -18,12 +18,12 @@ public class RoundPlayer {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
 
-    @OneToOne(mappedBy="left")
-    private Round roundAsLeft = null;
-    
-    @OneToOne(mappedBy="right")
-    private Round roundAsRight = null;
-    
+    @OneToOne(mappedBy = "leftPlayer")
+    private final Round roundAsLeft = null;
+
+    @OneToOne(mappedBy = "rightPlayer")
+    private final Round roundAsRight = null;
+
     @ManyToOne(optional = false)
     private final Agent agent;
 
@@ -81,20 +81,12 @@ public class RoundPlayer {
         }
         return getRoundAsRight();
     }
-    
-    void setRoudAsLeft(Round roundAsLeft) {
-        this.roundAsLeft = roundAsLeft;
-    }
-    
-    Round getRoundAsLeft() {
+
+    private Round getRoundAsLeft() {
         return roundAsLeft;
     }
-    
-    void setRoundAsRight(Round roundAsRight) {
-        this.roundAsRight = roundAsRight;
-    }
 
-    Round getRoundAsRight() {
+    private Round getRoundAsRight() {
         return roundAsRight;
     }
 }
