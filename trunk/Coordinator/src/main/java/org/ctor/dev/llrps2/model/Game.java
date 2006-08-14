@@ -12,6 +12,9 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "gameNumber",
@@ -51,7 +54,7 @@ public class Game {
     public Long getId() {
         return id;
     }
-    
+
     public Integer getGameNumber() {
         return gameNumber;
     }
@@ -76,6 +79,32 @@ public class Game {
 
     public Round getRound() {
         return round;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof Game)) {
+            return false;
+        }
+        final Game rhs = (Game) other;
+        return new EqualsBuilder().append(getRound(), rhs.getRound()).append(
+                getGameNumber(), rhs.getGameNumber()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getRound()).append(
+                getGameNumber()).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("gameNumber", getGameNumber())
+                .append("leftMove", getLeftMove()).append("rightMove",
+                        getRightMove()).toString();
     }
 
     // XXX check performance and consider to cache it by myself

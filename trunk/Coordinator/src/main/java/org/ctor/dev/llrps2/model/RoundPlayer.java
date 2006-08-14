@@ -10,6 +10,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.ctor.dev.llrps2.session.SessionStub;
 
 @Entity
@@ -88,5 +91,30 @@ public class RoundPlayer {
 
     private Round getRoundAsRight() {
         return roundAsRight;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof RoundPlayer)) {
+            return false;
+        }
+        final RoundPlayer rhs = (RoundPlayer) other;
+        return new EqualsBuilder().append(getRound(), rhs.getRound()).append(
+                getAgent(), rhs.getAgent()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getRound())
+                .append(getAgent()).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("cname", getCname()).append(
+                "agent", getAgent()).toString();
     }
 }
