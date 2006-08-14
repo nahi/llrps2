@@ -1,6 +1,7 @@
 package org.ctor.dev.llrps2.model;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -146,5 +147,54 @@ public class Round {
                 "leftPlayer", getLeftPlayer()).append("rightPlayer",
                 getRightPlayer()).append("rule", getRule()).append("result",
                 getResult()).toString();
+    }
+
+    public void start() {
+        getResult().setStartDateTime(new GregorianCalendar());
+    }
+
+    public void finish() {
+        getResult().setFinishDateTime(new GregorianCalendar());
+        countGames();
+    }
+    
+    private void countGames() {
+        int leftGames = 0;
+        int rightGames = 0;
+        int drawGames = 0;
+        int maxLeftStraightGames = 0;
+        int leftStraightGames = 0;
+        int maxRightStraightGames = 0;
+        int rightStraightGames = 0;
+        for (Game game : getGames()) {
+            game.setJudge(gameRule.judge(game.getLeftMove(), game.getRightMove()));
+            switch (game.getJudge()) {
+            case -1:
+                leftGames += 1;
+                leftStraightGames += 1;
+                rightStraightGames = 0;
+                maxLeftStraightGames = Math.max(maxLeftStraightGames,
+                        leftStraightGames);
+                break;
+            case 0:
+                drawGames += 1;
+                break;
+            case 1:
+                rightGames += 1;
+                leftStraightGames = 0;
+                rightStraightGames += 1;
+                maxRightStraightGames = Math.max(maxRightStraightGames,
+                        rightStraightGames);
+                break;
+            default:
+                throw new IllegalStateException();
+
+            }
+        }
+        getResult().setLeftGames(leftGames);
+        getResult().setDrawGames(drawGames);
+        getResult().setRightGames(rightGames);
+        getResult().setMaxLeftStraightGames(maxLeftStraightGames);
+        getResult().setMaxRightStraightGames(maxRightStraightGames);
     }
 }

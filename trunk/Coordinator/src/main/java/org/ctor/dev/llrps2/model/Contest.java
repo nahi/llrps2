@@ -1,6 +1,7 @@
 package org.ctor.dev.llrps2.model;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -37,7 +38,7 @@ public class Contest {
     private final List<Agent> contestants;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "contest")
-    private final ContestResult result = null;
+    private final ContestResult result;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "contest")
     @OrderBy("id")
@@ -55,6 +56,7 @@ public class Contest {
     private Contest(String name) {
         this.name = name;
         this.contestants = new ArrayList<Agent>();
+        this.result = ContestResult.create(this);
         this.rounds = new ArrayList<Round>();
     }
 
@@ -100,5 +102,13 @@ public class Contest {
         return new ToStringBuilder(this).append("name", getName()).append(
                 "contestants", getContestants()).append("result", getResult())
                 .toString();
+    }
+    
+    public void start() {
+        getResult().setStartDateTime(new GregorianCalendar());
+    }
+    
+    public void finish() {
+        getResult().setFinishDateTime(new GregorianCalendar());
     }
 }

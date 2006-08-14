@@ -65,7 +65,7 @@ public class RoundResult {
         return round;
     }
 
-    public void setStartDateTime(GregorianCalendar startDateTime) {
+    void setStartDateTime(GregorianCalendar startDateTime) {
         Validate.notNull(startDateTime);
         this.startDateTime = startDateTime;
     }
@@ -74,7 +74,7 @@ public class RoundResult {
         return startDateTime;
     }
 
-    public void setFinishDateTime(GregorianCalendar finishDateTime) {
+    void setFinishDateTime(GregorianCalendar finishDateTime) {
         Validate.notNull(finishDateTime);
         this.finishDateTime = finishDateTime;
     }
@@ -83,7 +83,7 @@ public class RoundResult {
         return finishDateTime;
     }
 
-    public void setLeftGames(int leftGames) {
+    void setLeftGames(int leftGames) {
         Validate.isTrue(leftGames >= 0, "leftGames must be >= 0");
         this.leftGames = leftGames;
     }
@@ -92,7 +92,7 @@ public class RoundResult {
         return leftGames;
     }
 
-    public void setRightGames(int rightGames) {
+    void setRightGames(int rightGames) {
         Validate.isTrue(rightGames >= 0, "rightGames must be >= 0");
         this.rightGames = rightGames;
     }
@@ -101,7 +101,7 @@ public class RoundResult {
         return rightGames;
     }
 
-    public void setDrawGames(int drawGames) {
+    void setDrawGames(int drawGames) {
         Validate.isTrue(drawGames >= 0, "drawGames must be >= 0");
         this.drawGames = drawGames;
     }
@@ -110,7 +110,7 @@ public class RoundResult {
         return drawGames;
     }
 
-    public void setMaxLeftStraightGames(int maxLeftStraightGames) {
+    void setMaxLeftStraightGames(int maxLeftStraightGames) {
         Validate.isTrue(maxLeftStraightGames >= 0,
                 "maxLeftStraightGames must be >= 0");
         this.maxLeftStraightGames = maxLeftStraightGames;
@@ -120,7 +120,7 @@ public class RoundResult {
         return maxLeftStraightGames;
     }
 
-    public void setMaxRightStraightGames(int maxRightStraightGames) {
+    void setMaxRightStraightGames(int maxRightStraightGames) {
         Validate.isTrue(maxRightStraightGames >= 0,
                 "maxRightStraightGames must be >= 0");
         this.maxRightStraightGames = maxRightStraightGames;

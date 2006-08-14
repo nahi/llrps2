@@ -18,14 +18,16 @@ public class ContestTest extends AbstractTest {
         createAgents(agentCount);
         final Contest contest = Contest.create("testContest");
         session.save(contest);
+        assertNull(contest.getResult().getStartDateTime());
+        assertNull(contest.getResult().getFinishDateTime());
+        contest.start();
         final List<Agent> agents = session.createCriteria(Agent.class).list();
-        // assertEquals(0, session.createCriteria(Round.class).list().size());
         for (int roundIdx = 0; roundIdx < roundCount; ++roundIdx) {
+            // left and right may be the same. never mind.
             final Agent left = agents.get(randomIndex(agents.size()));
-            // the right may be the same as the left. never mind.
             final Agent right = agents.get(randomIndex(agents.size()));
             //
-            final RoundRule rule = RoundRule.create(100, GameRule.Normal);
+            final RoundRule rule = RoundRule.create(gameCount, GameRule.Normal);
             final String roundName = String.format("%s - %s #%d", left
                     .getIpAddress(), right.getIpAddress(), roundIdx + 1);
             final Round round = Round.create(contest, roundName, left, right,
@@ -35,7 +37,7 @@ public class ContestTest extends AbstractTest {
             assertTrue(contest.getRounds().contains(round));
             assertEquals(round, round.getLeftPlayer().getRound());
             assertEquals(round, round.getRightPlayer().getRound());
-            assertEquals(100, round.getRule().getGameCount());
+            assertEquals(gameCount, round.getRule().getGameCount());
             assertEquals(GameRule.Normal, round.getRule().getGameRule());
             for (int gameIdx = 0; gameIdx < gameCount; ++gameIdx) {
                 final Game game = Game.create(gameIdx, round);
@@ -49,12 +51,15 @@ public class ContestTest extends AbstractTest {
             assertTrue(contest.getRounds().contains(round));
             assertEquals(round, round.getLeftPlayer().getRound());
             assertEquals(round, round.getRightPlayer().getRound());
-            assertEquals(100, round.getRule().getGameCount());
+            assertEquals(gameCount, round.getRule().getGameCount());
             assertEquals(GameRule.Normal, round.getRule().getGameRule());
         }
+        contest.finish();
+        assertNotNull(contest.getResult().getStartDateTime());
+        assertNotNull(contest.getResult().getFinishDateTime());
         final List<Round> rounds = session.createCriteria(Round.class).list();
         assertEquals(roundCount, rounds.size());
-        assertEquals(100, rounds.get(0).getRule().getGameCount());
+        assertEquals(gameCount, rounds.get(0).getRule().getGameCount());
         assertEquals(GameRule.Normal, rounds.get(0).getRule().getGameRule());
         tx.commit();
     }
