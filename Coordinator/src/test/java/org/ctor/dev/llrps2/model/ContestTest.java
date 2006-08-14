@@ -4,47 +4,10 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class ContestTest {
-    private static ApplicationContext ctx = null;
-
-    private static SessionFactory sessionFactory = null;
-
-    private Session session = null;
-
-    @BeforeClass
-    public static void initializeClass() {
-        ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-        sessionFactory = (SessionFactory) ctx.getBean("sessionFactory");
-    }
-
-    @AfterClass
-    public static void terminateClass() {
-        if (sessionFactory != null) {
-            sessionFactory.close();
-        }
-    }
-
-    @Before
-    public void initialize() {
-        session = sessionFactory.openSession();
-    }
-
-    @After
-    public void terminate() {
-        session.close();
-    }
-
+public class ContestTest extends AbstractTest {
     @Test
     public void testDbAccess() throws Exception {
         final Transaction tx = session.beginTransaction();
@@ -53,7 +16,7 @@ public class ContestTest {
         final int roundCount = 3;
         final int gameCount = 10;
         createAgents(agentCount);
-        final Contest contest = Contest.create();
+        final Contest contest = Contest.create("testContest");
         session.save(contest);
         final List<Agent> agents = session.createCriteria(Agent.class).list();
         // assertEquals(0, session.createCriteria(Round.class).list().size());
@@ -69,7 +32,10 @@ public class ContestTest {
             session.save(right);
             //
             final RoundRule rule = RoundRule.create(100, GameRule.Normal);
-            final Round round = Round.create(contest, left, right, rule);
+            final String roundName = String.format("%s - %s #%d", leftAgent
+                    .getIpAddress(), rightAgent.getIpAddress(), roundIdx + 1);
+            final Round round = Round.create(contest, roundName, left, right,
+                    rule);
             session.save(round);
             final RoundResult result = RoundResult.create(round);
             session.save(result);
@@ -111,12 +77,5 @@ public class ContestTest {
 
     private int randomIndex(int size) {
         return (int) (Math.random() * size);
-    }
-
-    private void clean() {
-        for (Contest contest : (List<Contest>) session.createCriteria(
-                Contest.class).list()) {
-            session.delete(contest);
-        }
     }
 }
