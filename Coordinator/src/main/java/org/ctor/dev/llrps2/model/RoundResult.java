@@ -10,6 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 public class RoundResult {
@@ -36,10 +39,10 @@ public class RoundResult {
     private int drawGames = 0;
 
     @Column(nullable = false)
-    private int maxLeftStraitGames = 0;
+    private int maxLeftStraightGames = 0;
 
     @Column(nullable = false)
-    private int maxRightStraitGames = 0;
+    private int maxRightStraightGames = 0;
 
     static RoundResult create(Round round) {
         Validate.notNull(round);
@@ -107,23 +110,53 @@ public class RoundResult {
         return drawGames;
     }
 
-    public void setMaxLeftStraitGames(int maxLeftStraitGames) {
-        Validate.isTrue(maxLeftStraitGames >= 0,
-                "maxLeftStraitGames must be >= 0");
-        this.maxLeftStraitGames = maxLeftStraitGames;
+    public void setMaxLeftStraightGames(int maxLeftStraightGames) {
+        Validate.isTrue(maxLeftStraightGames >= 0,
+                "maxLeftStraightGames must be >= 0");
+        this.maxLeftStraightGames = maxLeftStraightGames;
     }
 
-    public int getMaxLeftStraitGames() {
-        return maxLeftStraitGames;
+    public int getMaxLeftStraightGames() {
+        return maxLeftStraightGames;
     }
 
-    public void setMaxRightStraitGames(int maxRightStraitGames) {
-        Validate.isTrue(maxRightStraitGames >= 0,
-                "maxRightStraitGames must be >= 0");
-        this.maxRightStraitGames = maxRightStraitGames;
+    public void setMaxRightStraightGames(int maxRightStraightGames) {
+        Validate.isTrue(maxRightStraightGames >= 0,
+                "maxRightStraightGames must be >= 0");
+        this.maxRightStraightGames = maxRightStraightGames;
     }
 
-    public int getMaxRightStraitGames() {
-        return maxRightStraitGames;
+    public int getMaxRightStraightGames() {
+        return maxRightStraightGames;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof RoundResult)) {
+            return false;
+        }
+        final RoundResult rhs = (RoundResult) other;
+        return new EqualsBuilder().append(getRound(), rhs.getRound())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getRound()).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("startDateTime",
+                getStartDateTime()).append("finishDateTime",
+                getFinishDateTime()).append("leftGames", getLeftGames())
+                .append("rightGames", getRightGames()).append("drawGames",
+                        getDrawGames()).append("maxLeftStraightGames",
+                        getMaxLeftStraightGames()).append(
+                        "maxRightStraightGames", getMaxRightStraightGames())
+                .toString();
     }
 }

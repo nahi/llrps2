@@ -16,6 +16,9 @@ import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 public class Round {
@@ -25,6 +28,9 @@ public class Round {
 
     @ManyToOne(optional = false)
     private final Contest contest;
+
+    @Column(nullable = false, unique = true)
+    private final String name;
 
     @OneToOne(cascade = CascadeType.ALL, optional = false)
     private final RoundPlayer leftPlayer;
@@ -48,22 +54,24 @@ public class Round {
     @OrderBy("gameNumber")
     private final List<Game> games;
 
-    static Round create(Contest contest, RoundPlayer leftPlayer,
+    static Round create(Contest contest, String name, RoundPlayer leftPlayer,
             RoundPlayer rightPlayer, RoundRule rule) {
         Validate.notNull(contest);
+        Validate.notNull(name);
         Validate.notNull(leftPlayer);
         Validate.notNull(rightPlayer);
         Validate.notNull(rule);
-        return new Round(contest, leftPlayer, rightPlayer, rule);
+        return new Round(contest, name, leftPlayer, rightPlayer, rule);
     }
 
     Round() {
-        this(null, null, null, null);
+        this(null, null, null, null, null);
     }
 
-    private Round(Contest contest, RoundPlayer leftPlayer,
+    private Round(Contest contest, String name, RoundPlayer leftPlayer,
             RoundPlayer rightPlayer, RoundRule rule) {
         this.contest = contest;
+        this.name = name;
         this.leftPlayer = leftPlayer;
         this.rightPlayer = rightPlayer;
         this.rule = rule;
@@ -84,6 +92,10 @@ public class Round {
         return contest;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public RoundPlayer getLeftPlayer() {
         return leftPlayer;
     }
@@ -102,5 +114,32 @@ public class Round {
 
     public List<Game> getGames() {
         return games;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof Round)) {
+            return false;
+        }
+        final Round rhs = (Round) other;
+        return new EqualsBuilder().append(getContest(), rhs.getContest())
+                .append(getName(), rhs.getName()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getContest()).append(
+                getName()).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("name", getName()).append(
+                "leftPlayer", getLeftPlayer()).append("rightPlayer",
+                getRightPlayer()).append("rule", getRule()).append("result",
+                getResult()).toString();
     }
 }
