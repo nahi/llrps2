@@ -29,7 +29,7 @@ public class Round {
     @ManyToOne(optional = false)
     private final Contest contest;
 
-    @Column(nullable = false, unique = true)
+    @Column(length = 255, nullable = false, unique = true)
     private final String name;
 
     @OneToOne(cascade = CascadeType.ALL, optional = false)
@@ -48,33 +48,38 @@ public class Round {
     private final GameRule gameRule;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "round")
-    private final RoundResult result = null;
+    private final RoundResult result;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "round")
     @OrderBy("gameNumber")
     private final List<Game> games;
 
-    static Round create(Contest contest, String name, RoundPlayer leftPlayer,
-            RoundPlayer rightPlayer, RoundRule rule) {
+    static Round create(Contest contest, String name, Agent left, Agent right,
+            RoundRule rule) {
         Validate.notNull(contest);
         Validate.notNull(name);
-        Validate.notNull(leftPlayer);
-        Validate.notNull(rightPlayer);
+        Validate.notNull(left);
+        Validate.notNull(right);
         Validate.notNull(rule);
-        return new Round(contest, name, leftPlayer, rightPlayer, rule);
+        final Round round = new Round(contest, name, left, right, rule);
+        contest.getRounds().add(round);
+        return round;
     }
 
     Round() {
         this(null, null, null, null, null);
     }
 
-    private Round(Contest contest, String name, RoundPlayer leftPlayer,
-            RoundPlayer rightPlayer, RoundRule rule) {
+    private Round(Contest contest, String name, Agent left, Agent right,
+            RoundRule rule) {
         this.contest = contest;
         this.name = name;
-        this.leftPlayer = leftPlayer;
-        this.rightPlayer = rightPlayer;
+        this.leftPlayer = (left == null) ? null : RoundPlayer.createAsLeft(
+                left, this);
+        this.rightPlayer = (right == null) ? null : RoundPlayer.createAsRight(
+                right, this);
         this.rule = rule;
+        this.result = RoundResult.create(this);
 
         this.scheduledGameCount = (rule == null) ? 0 : rule.getGameCount();
         this.gameRule = (rule == null) ? null : rule.getGameRule();

@@ -28,7 +28,7 @@ public class Contest {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
 
-    @Column(nullable = false, unique = true)
+    @Column(length = 255, nullable = false, unique = true)
     private final String name;
 
     @ManyToMany(cascade = CascadeType.ALL)

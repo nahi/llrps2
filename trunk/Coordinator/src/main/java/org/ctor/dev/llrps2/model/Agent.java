@@ -17,10 +17,10 @@ public class Agent {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
 
-    @Column
+    @Column(length = 255)
     private String name = null;
 
-    @Column(nullable = false, unique = true)
+    @Column(length = 63, nullable = false, unique = true)
     private final String ipAddress;
 
     static Agent create(String ipAddress) {

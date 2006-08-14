@@ -22,31 +22,40 @@ public class RoundPlayer {
     private final Long id = null;
 
     @OneToOne(mappedBy = "leftPlayer")
-    private final Round roundAsLeft = null;
+    private final Round roundAsLeft;
 
     @OneToOne(mappedBy = "rightPlayer")
-    private final Round roundAsRight = null;
+    private final Round roundAsRight;
 
     @ManyToOne(optional = false)
     private final Agent agent;
 
-    @Column
+    @Column(length = 255)
     private String cname = null;
 
     @Transient
     private SessionStub session = null;
 
-    static RoundPlayer create(Agent agent) {
+    static RoundPlayer createAsLeft(Agent agent, Round round) {
         Validate.notNull(agent);
-        return new RoundPlayer(agent);
+        Validate.notNull(round);
+        return new RoundPlayer(agent, round, null);
+    }
+
+    static RoundPlayer createAsRight(Agent agent, Round round) {
+        Validate.notNull(agent);
+        Validate.notNull(round);
+        return new RoundPlayer(agent, null, round);
     }
 
     RoundPlayer() {
-        this(null);
+        this(null, null, null);
     }
 
-    private RoundPlayer(Agent agent) {
+    private RoundPlayer(Agent agent, Round roundAsLeft, Round roundAsRight) {
         this.agent = agent;
+        this.roundAsLeft = roundAsLeft;
+        this.roundAsRight = roundAsRight;
     }
 
     public Long getId() {

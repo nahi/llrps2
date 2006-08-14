@@ -52,4 +52,16 @@ public abstract class AbstractTest {
         }
         session.flush();
     }
+
+    protected void createAgents(int agents) {
+        for (int idx = 0; idx < agents; ++idx) {
+            final Agent newAgent = Agent.create("192.168.1." + idx);
+            newAgent.setName("agent_" + idx);
+            session.save(newAgent);
+        }
+    }
+
+    protected int randomIndex(int size) {
+        return (int) (Math.random() * size);
+    }
 }
