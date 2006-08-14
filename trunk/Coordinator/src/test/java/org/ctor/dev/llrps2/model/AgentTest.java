@@ -30,7 +30,9 @@ public class AgentTest {
     
     @AfterClass
     public static void terminateClass() {
-        sessionFactory.close();
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 
     @Before

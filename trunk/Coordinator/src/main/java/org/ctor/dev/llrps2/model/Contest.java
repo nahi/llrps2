@@ -8,31 +8,34 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-public class Competition {
+public class Contest {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "Competitor")
-    private final List<Agent> agents;
+    @JoinTable(name = "Contestant", joinColumns = @JoinColumn(name = "contest_id"), inverseJoinColumns = @JoinColumn(name = "agent_id"), uniqueConstraints = { @UniqueConstraint(columnNames = {
+            "contest_id", "agent_id" }) })
+    private final List<Agent> contestants;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "competition")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "contest")
     @OrderBy("id")
     private final List<Round> rounds;
 
-    static Competition create() {
-        return new Competition();
+    static Contest create() {
+        return new Contest();
     }
 
-    Competition() {
-        this.agents = new ArrayList<Agent>();
+    Contest() {
+        this.contestants = new ArrayList<Agent>();
         this.rounds = new ArrayList<Round>();
     }
 
@@ -40,8 +43,8 @@ public class Competition {
         return id;
     }
 
-    public List<Agent> getAgents() {
-        return agents;
+    public List<Agent> getContestants() {
+        return contestants;
     }
 
     public List<Round> getRounds() {

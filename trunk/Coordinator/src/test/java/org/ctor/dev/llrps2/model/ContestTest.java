@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class CompetitionTest {
+public class ContestTest {
     private static ApplicationContext ctx = null;
 
     private static SessionFactory sessionFactory = null;
@@ -30,7 +30,9 @@ public class CompetitionTest {
 
     @AfterClass
     public static void terminateClass() {
-        sessionFactory.close();
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 
     @Before
@@ -47,14 +49,15 @@ public class CompetitionTest {
     public void testDbAccess() throws Exception {
         final Transaction tx = session.beginTransaction();
         clean();
-        createAgents(5);
-        final Competition competition = Competition.create();
-        session.save(competition);
-        final int rounds = 5;
-        final int games = 20;
+        final int agentCount = 5;
+        final int roundCount = 3;
+        final int gameCount = 10;
+        createAgents(agentCount);
+        final Contest contest = Contest.create();
+        session.save(contest);
         final List<Agent> agents = session.createCriteria(Agent.class).list();
-        //assertEquals(0, session.createCriteria(Round.class).list().size());
-        for (int roundIdx = 0; roundIdx < rounds; ++roundIdx) {
+        // assertEquals(0, session.createCriteria(Round.class).list().size());
+        for (int roundIdx = 0; roundIdx < roundCount; ++roundIdx) {
             final Agent leftAgent = agents.get(randomIndex(agents.size()));
             // the right may be the same as the left. never mind.
             final Agent rightAgent = agents.get(randomIndex(agents.size()));
@@ -64,28 +67,37 @@ public class CompetitionTest {
             final RoundPlayer right = RoundPlayer.create(rightAgent);
             session.save(left);
             session.save(right);
-            final Round round = Round.create(competition, left, right);
+            //
+            final RoundRule rule = RoundRule.create(100, GameRule.Normal);
+            final Round round = Round.create(contest, left, right, rule);
             session.save(round);
+            final RoundResult result = RoundResult.create(round);
+            session.save(result);
             session.flush();
-            session.refresh(competition);
-            assertTrue(competition.getRounds().contains(round));
+            session.refresh(contest);
+            assertTrue(contest.getRounds().contains(round));
             session.refresh(left);
             session.refresh(right);
             assertEquals(round, left.getRound());
             assertEquals(round, right.getRound());
+            assertEquals(100, round.getRule().getGameCount());
+            assertEquals(GameRule.Normal, round.getRule().getGameRule());
 
-            for (int gameIdx = 0; gameIdx < games; ++gameIdx) {
+            for (int gameIdx = 0; gameIdx < gameCount; ++gameIdx) {
                 final Game game = Game.create(gameIdx, round);
                 game.setLeftMove(Move.Paper);
                 game.setRightMove(Move.NotAMove);
-                System.out.println(gameIdx);
                 session.save(game);
                 session.flush();
+                // select columns from Game for each game.
                 session.refresh(round);
                 assertTrue(round.getGames().contains(game));
             }
         }
-        assertEquals(rounds, session.createCriteria(Round.class).list().size());
+        final List<Round> rounds = session.createCriteria(Round.class).list();
+        assertEquals(roundCount, rounds.size());
+        assertEquals(100, rounds.get(0).getRule().getGameCount());
+        assertEquals(GameRule.Normal, rounds.get(0).getRule().getGameRule());
         tx.commit();
     }
 
@@ -102,9 +114,9 @@ public class CompetitionTest {
     }
 
     private void clean() {
-        for (Competition competition : (List<Competition>) session
-                .createCriteria(Competition.class).list()) {
-            session.delete(competition);
+        for (Contest contest : (List<Contest>) session.createCriteria(
+                Contest.class).list()) {
+            session.delete(contest);
         }
     }
 }
