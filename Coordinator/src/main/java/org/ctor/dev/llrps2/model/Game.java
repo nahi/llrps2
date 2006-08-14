@@ -39,7 +39,9 @@ public class Game {
     static Game create(Integer gameNumber, Round round) {
         Validate.notNull(gameNumber);
         Validate.notNull(round);
-        return new Game(gameNumber, round);
+        final Game game = new Game(gameNumber, round);
+        round.getGames().add(game);
+        return game;
     }
 
     Game() {
