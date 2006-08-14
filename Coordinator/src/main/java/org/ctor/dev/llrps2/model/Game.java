@@ -28,10 +28,13 @@ public class Game {
     private final Integer gameNumber;
 
     @Column
-    private Move leftMove;
+    private Move leftMove = Move.NotAMove;
 
     @Column
-    private Move rightMove;
+    private Move rightMove = Move.NotAMove;
+
+    @Column
+    private Integer judge = 0;
 
     @ManyToOne(optional = false)
     private final Round round;
@@ -83,6 +86,16 @@ public class Game {
         return round;
     }
 
+    void setJudge(Integer judge) {
+        Validate.notNull(judge);
+        Validate.isTrue(judge >= -1 && judge <= 1);
+        this.judge = judge;
+    }
+
+    public Integer getJudge() {
+        return judge;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {
@@ -106,7 +119,7 @@ public class Game {
     public String toString() {
         return new ToStringBuilder(this).append("gameNumber", getGameNumber())
                 .append("leftMove", getLeftMove()).append("rightMove",
-                        getRightMove()).toString();
+                        getRightMove()).append("judge", getJudge()).toString();
     }
 
     // XXX check performance and consider to cache it by myself

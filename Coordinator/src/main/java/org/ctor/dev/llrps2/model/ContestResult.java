@@ -51,7 +51,7 @@ public class ContestResult {
         return contest;
     }
 
-    public void setStartDateTime(GregorianCalendar startDateTime) {
+    void setStartDateTime(GregorianCalendar startDateTime) {
         Validate.notNull(startDateTime);
         this.startDateTime = startDateTime;
     }
@@ -60,7 +60,7 @@ public class ContestResult {
         return startDateTime;
     }
 
-    public void setFinishDateTime(GregorianCalendar finishDateTime) {
+    void setFinishDateTime(GregorianCalendar finishDateTime) {
         Validate.notNull(finishDateTime);
         this.finishDateTime = finishDateTime;
     }
