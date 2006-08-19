@@ -7,13 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.ctor.dev.llrps2.session.SessionStub;
 
 @Entity
 public class RoundPlayer {
@@ -32,9 +30,6 @@ public class RoundPlayer {
 
     @Column(length = 255)
     private String cname = null;
-
-    @Transient
-    private SessionStub session = null;
 
     static RoundPlayer createAsLeft(Agent agent, Round round) {
         Validate.notNull(agent);
@@ -73,15 +68,6 @@ public class RoundPlayer {
 
     public String getCname() {
         return cname;
-    }
-
-    public void setSession(SessionStub session) {
-        Validate.notNull(session);
-        this.session = session;
-    }
-
-    public SessionStub getSession() {
-        return session;
     }
 
     public Round getRound() {

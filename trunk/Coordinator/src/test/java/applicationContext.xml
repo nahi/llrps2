@@ -3,31 +3,19 @@
 <beans>
   <bean id="propertyConfigurer" 
     class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location">
-      <value>classpath:llrps2.properties</value>
-    </property>
+    <property name="location" value="classpath:llrps2.properties" />
   </bean>
 
   <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="driverClassName">
-      <value>org.postgresql.Driver</value>
-    </property>
-    <property name="url">
-      <value>${jdbc.url}</value>
-    </property>
-    <property name="username">
-      <value>${jdbc.username}</value>
-    </property>
-    <property name="password">
-      <value>${jdbc.password}</value>
-    </property>
+    <property name="driverClassName" value="org.postgresql.Driver" />
+    <property name="url" value="${jdbc.url}" />
+    <property name="username" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
   </bean>
 
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
     <property name="dataSource" ref="dataSource"/>
-    <property name="configurationClass">
-      <value>org.hibernate.cfg.AnnotationConfiguration</value>
-    </property>
+    <property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration" />
     <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
   </bean>
 

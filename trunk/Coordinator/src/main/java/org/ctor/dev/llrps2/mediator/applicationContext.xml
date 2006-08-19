@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- import properties -->
+  
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location" value="classpath:org/ctor/dev/llrps2/llrps2.properties" />
+  </bean>
+
+  <!-- JMS generic definition -->
+  
+  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="jmsConnectionFactory" />
+  </bean>
+
+  <bean id="jmsConnectionFactory"
+      class="org.apache.activemq.pool.PooledConnectionFactory">
+    <property name="connectionFactory">
+      <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="${activemq.brokerurl}" />
+      </bean>
+    </property>
+  </bean>
+
+  <!-- JMS queue definition -->
+  
+  <bean id="agentEnrollmentRequest" class="org.apache.activemq.command.ActiveMQQueue">
+    <constructor-arg value="urn:org.ctor.dev.llrps2.agentEnrollmentRequest" />
+  </bean>
+  
+  <bean id="roundMediationRequest" class="org.apache.activemq.command.ActiveMQQueue">
+    <constructor-arg value="urn:org.ctor.dev.llrps2.roundMediationRequest" />
+  </bean>
+  
+  <bean id="connectedAgentNotification" class="org.apache.activemq.command.ActiveMQQueue">
+    <constructor-arg value="urn:org.ctor.dev.llrps2.connectedAgentNotification" />
+  </bean>
+  
+  <bean id="roundResultNotification" class="org.apache.activemq.command.ActiveMQQueue">
+    <constructor-arg value="urn:org.ctor.dev.llrps2.roundResultNotification" />
+  </bean>
+
+  <!-- JMS container definition -->
+  
+  <bean id="agentEnrollmentManager" class="org.ctor.dev.llrps2.mediator.AgentEnrollmentManager">
+    <constructor-arg ref="jmsTemplate" />
+    <property name="mediator" ref="mediator" />
+    <property name="connectedAgentNotificationDestination" ref="connectedAgentNotification" />
+  </bean>
+  <bean id="agentEnrollmentManagerContainer"
+    class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="jmsConnectionFactory" />
+    <property name="messageListener" ref="agentEnrollmentManager" />
+    <property name="destination" ref="agentEnrollmentRequest" />
+  </bean>
+
+  <bean id="roundMediationManager" class="org.ctor.dev.llrps2.mediator.RoundMediationManager">
+    <constructor-arg ref="jmsTemplate" />
+    <property name="mediator" ref="mediator" />
+    <property name="roundResultNotificationDestination" ref="roundResultNotification" />
+  </bean>
+  <bean id="roundMediationManagerContainer"
+    class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="jmsConnectionFactory" />
+    <property name="messageListener" ref="roundMediationManager" />
+    <property name="destination" ref="roundMediationRequest" />
+  </bean>
+  
+  <!-- Application definition -->
+  
+  <bean id="mediator" class="org.ctor.dev.llrps2.mediator.Mediator">
+    <property name="agentEnrollmentManager" ref="agentEnrollmentManager" />
+    <property name="roundMediationManager" ref="roundMediationManager" />
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="coordinatorName" value="${coordinator.name}" />
+    <property name="connectionScanInterleaveMsec" value="${mediator.connectionScanInterleaveMsec}" />
+    <property name="maxConnectionsForPassiveAgent" value="${mediator.maxConnectionsForPassiveAgent}" />
+  </bean>
+  
+  <bean id="sessionFactory" class="org.ctor.dev.llrps2.mediator.SessionFactory">
+    <property name="serverChannelFactory" ref="serverChannelFactory" />
+    <property name="clientChannelFactory" ref="clientChannelFactory" />
+  </bean>
+
+  <bean id="serverChannelFactory" class="org.ctor.dev.llrps2.mediator.ServerChannelFactory">
+    <property name="listenPort" value="${mediator.server.listenPort}" />
+  </bean>
+
+  <bean id="clientChannelFactory" class="org.ctor.dev.llrps2.mediator.ClientChannelFactory">
+  </bean>
+</beans>

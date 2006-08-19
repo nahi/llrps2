@@ -7,7 +7,7 @@ public class RoundRule {
 
     private final GameRule gameRule;
 
-    static RoundRule create(int gameCount, GameRule gameRule) {
+    public static RoundRule create(int gameCount, GameRule gameRule) {
         Validate.isTrue(gameCount >= 0, "gameCount must be >= 0");
         return new RoundRule(gameCount, gameRule);
     }

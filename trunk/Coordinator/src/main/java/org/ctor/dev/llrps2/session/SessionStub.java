@@ -110,6 +110,10 @@ public class SessionStub {
             LOG.debug(cce.getMessage(), cce);
         }
     }
+    
+    public SocketChannel getChannel() {
+        return channel;
+    }
 
     private void writeMessage(String message) {
         writeLine(message + LINE_TERMINATER);
