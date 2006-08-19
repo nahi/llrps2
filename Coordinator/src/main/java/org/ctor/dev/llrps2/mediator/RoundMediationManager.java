@@ -1,0 +1,85 @@
+package org.ctor.dev.llrps2.mediator;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.message.RoundMessage;
+import org.springframework.jms.core.JmsTemplate;
+
+public class RoundMediationManager implements MessageListener {
+    private static final Log LOG = LogFactory
+            .getLog(RoundMediationManager.class);
+
+    private final JmsTemplate jmsTemplate;
+
+    private Mediator mediator = null;
+
+    private Destination roundResultNotificationDestination = null;
+
+    private final List<RoundMessage> rounds = new CopyOnWriteArrayList<RoundMessage>();
+
+    RoundMediationManager(JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
+    }
+
+    public void onMessage(Message message) {
+        LOG.info("received: round mediation request");
+        if (!(message instanceof ObjectMessage)) {
+            throw new IllegalArgumentException(
+                    "Message must be of type ObjectMessage: "
+                            + message.getClass());
+        }
+        try {
+            final ObjectMessage obj = (ObjectMessage) message;
+            final RoundMessage round = (RoundMessage) obj.getObject();
+            rounds.add(round);
+            mediator.notifyRoundMediationRequest();
+
+        } catch (JMSException e) {
+            LOG.warn(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    void notifyRoundResult(RoundMessage round) {
+        if (!rounds.contains(round)) {
+            throw new IllegalStateException("unknown round message");
+        }
+        if (!round.isCompleted()) {
+            throw new IllegalStateException("round not finished");
+        }
+        jmsTemplate.convertAndSend(roundResultNotificationDestination, round);
+        rounds.remove(round);
+        mediator.notifyRoundMediationRequest();
+        LOG.info("sent: round result notification");
+    }
+
+    public void setMediator(Mediator sessionManager) {
+        this.mediator = sessionManager;
+    }
+
+    public Mediator getMediator() {
+        return mediator;
+    }
+
+    public void setRoundResultNotificationDestination(
+            Destination roundResultNotificationDestination) {
+        this.roundResultNotificationDestination = roundResultNotificationDestination;
+    }
+
+    public Destination getRoundResultNotificationDestination() {
+        return roundResultNotificationDestination;
+    }
+
+    public List<RoundMessage> getRounds() {
+        return rounds;
+    }
+}
