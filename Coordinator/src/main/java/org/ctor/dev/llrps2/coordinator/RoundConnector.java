@@ -15,7 +15,7 @@ public class RoundConnector implements MessageListener {
 
     private final JmsTemplate jmsTemplate;
 
-    private RoundManagers roundManager = null;
+    private RoundManager roundManager = null;
 
     private String roundMediationRequestDestination = null;
 
@@ -54,11 +54,11 @@ public class RoundConnector implements MessageListener {
         return roundMediationRequestDestination;
     }
 
-    public void setRoundManager(RoundManagers roundManager) {
+    public void setRoundManager(RoundManager roundManager) {
         this.roundManager = roundManager;
     }
 
-    public RoundManagers getRoundManager() {
+    public RoundManager getRoundManager() {
         return roundManager;
     }
 }

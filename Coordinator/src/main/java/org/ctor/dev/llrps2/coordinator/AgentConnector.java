@@ -17,7 +17,7 @@ public class AgentConnector implements MessageListener {
 
     private final JmsTemplate jmsTemplate;
 
-    private AgentManager2 agentManager = null;
+    private AgentManager agentManager = null;
     
     private String agentEnrollmentRequestDestination = null;
 
@@ -48,11 +48,11 @@ public class AgentConnector implements MessageListener {
         LOG.info("sent: agent enrollment request");
     }
 
-    public void setAgentManager(AgentManager2 agentManager) {
+    public void setAgentManager(AgentManager agentManager) {
         this.agentManager = agentManager;
     }
 
-    public AgentManager2 getAgentManager() {
+    public AgentManager getAgentManager() {
         return agentManager;
     }
 
