@@ -20,9 +20,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class Coordinator {
     private static final Log LOG = LogFactory.getLog(Coordinator.class);
 
-    private AgentManager2 agentManager = null;
+    private AgentManager agentManager = null;
 
-    private RoundManagers roundManager = null;
+    private RoundManager roundManager = null;
 
     private ContestDao contestDao = null;
 
@@ -79,19 +79,19 @@ public class Coordinator {
         return reader.readLine();
     }
 
-    public void setAgentManager(AgentManager2 agentManager) {
+    public void setAgentManager(AgentManager agentManager) {
         this.agentManager = agentManager;
     }
 
-    public AgentManager2 getAgentManager() {
+    public AgentManager getAgentManager() {
         return agentManager;
     }
 
-    public void setRoundManager(RoundManagers roundManager) {
+    public void setRoundManager(RoundManager roundManager) {
         this.roundManager = roundManager;
     }
 
-    public RoundManagers getRoundManager() {
+    public RoundManager getRoundManager() {
         return roundManager;
     }
 
