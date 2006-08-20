@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ctor.dev.llrps2.message.AgentMapper;
-import org.ctor.dev.llrps2.message.AgentMessage;
 import org.ctor.dev.llrps2.model.Agent;
 import org.ctor.dev.llrps2.model.Contest;
 import org.ctor.dev.llrps2.model.GameRule;
@@ -30,7 +28,7 @@ public class Coordinator {
         final ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
                 "classpath:org/ctor/dev/llrps2/coordinator/applicationContext.xml");
         final Coordinator mgr = (Coordinator) ctx.getBean("coordinator");
-        System.out.println("coordinator started");
+        LOG.info("coordinator started");
         mgr.start();
     }
 

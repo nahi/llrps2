@@ -8,5 +8,7 @@ public enum Move {
     // scissors
     Scissors,
     // paper
-    Paper;
+    Paper,
+    // surrender
+    Surrender;
 }

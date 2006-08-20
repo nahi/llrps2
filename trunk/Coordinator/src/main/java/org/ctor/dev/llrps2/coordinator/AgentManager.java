@@ -10,7 +10,7 @@ import org.ctor.dev.llrps2.model.Agent;
 import org.ctor.dev.llrps2.persistence.AgentDao;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@Transactional(readOnly = true)
 public class AgentManager {
     private static final Log LOG = LogFactory.getLog(AgentManager.class);
 
@@ -25,12 +25,7 @@ public class AgentManager {
         }
     }
 
-    public void requestAgentEnrollment(Agent agent) {
-        final AgentMessage agentMessage = AgentMapper.modelToMessage(agent);
-        LOG.info("sending agent enrollment request: " + agentMessage);
-        getAgentConnector().requestAgentEnrollment(agentMessage);
-    }
-
+    @Transactional(readOnly = false)
     public Agent addActiveAgent(String agentName, String ipAddress) {
         final Agent agent = Agent.create(agentName, ipAddress, null, true);
         agentDao.save(agent);
@@ -41,6 +36,12 @@ public class AgentManager {
         final Agent agent = Agent.create(agentName, ipAddress, port, false);
         agentDao.save(agent);
         return agent;
+    }
+
+    public void requestAgentEnrollment(Agent agent) {
+        final AgentMessage agentMessage = AgentMapper.modelToMessage(agent);
+        LOG.info("sending agent enrollment request: " + agentMessage);
+        getAgentConnector().requestAgentEnrollment(agentMessage);
     }
 
     public void setAgentConnector(AgentConnector agentConnector) {

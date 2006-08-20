@@ -91,6 +91,49 @@ public class RoundHandler {
         }
     }
 
+    void notifySurrender(SessionHandler session) {
+        final boolean isLeft = isLeft(session);
+        if (gameNumber > 0) {
+            final GameMessage game = getRound().getGames().get(gameNumber - 1);
+            if (isLeft) {
+                game.setLeftMove(Move.Surrender);
+                if (game.getRightMove() == null) {
+                    game.setRightMove(Move.NotAMove);
+                }
+                try {
+                    getRight().recover();
+                } catch (RpsSessionException rse) {
+                    LOG.info(rse.getMessage(), rse);
+                    game.setRightMove(Move.Surrender);
+                }
+            } else {
+                game.setRightMove(Move.Surrender);
+                if (game.getLeftMove() == null) {
+                    game.setLeftMove(Move.NotAMove);
+                }
+                try {
+                    getLeft().recover();
+                } catch (RpsSessionException rse) {
+                    LOG.info(rse.getMessage(), rse);
+                    game.setLeftMove(Move.Surrender);
+                }
+            }
+        }
+        while (gameNumber < getIteration()) {
+            final GameMessage newgame = GameMessage.create(++gameNumber);
+            getRound().addGame(newgame);
+            if (isLeft) {
+                newgame.setLeftMove(Move.Surrender);
+                newgame.setRightMove(Move.NotAMove);
+            } else {
+                newgame.setLeftMove(Move.NotAMove);
+                newgame.setRightMove(Move.Surrender);
+            }
+        }
+        getRound().setFinishDateTime(DateTimeMapper.modelToMessage(now()));
+        roundMediationManager.notifyRoundResult(getRound());
+    }
+
     private void completeGame() throws RpsSessionException {
         LOG.info("game complete");
         final GameMessage game = getRound().getGames().get(gameNumber - 1);
