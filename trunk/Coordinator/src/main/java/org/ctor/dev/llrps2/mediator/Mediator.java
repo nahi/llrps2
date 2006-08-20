@@ -92,6 +92,7 @@ public class Mediator {
                 handler.handle();
             } catch (RpsSessionException rse) {
                 handler.close();
+                removeHandler(channel);
                 throw rse;
             }
         }
@@ -162,21 +163,30 @@ public class Mediator {
                 final SessionHandler rightSession = rightAgent.pollSession();
                 if (!leftSession.isReadyForRoundStart()
                         || !rightSession.isReadyForRoundStart()) {
+                    // push_back
                     leftAgent.addSession(leftSession);
                     rightAgent.addSession(rightSession);
-                    LOG.info("fail: not ready");
+                    if (!leftSession.isReadyForRoundStart()) {
+                        LOG.info("fail: leftSession not ready "
+                                + leftSession.getState());
+                    }
+                    if (!rightSession.isReadyForRoundStart()) {
+                        LOG.info("fail: rightSession not ready "
+                                + rightSession.getState());
+                    }
                     continue;
                 }
                 try {
                     RoundHandler.create(roundMediationManager, round,
                             leftSession, rightSession);
                     round.setAssigned(true);
-                    // push_back
-                    leftAgent.addSession(leftSession);
-                    rightAgent.addSession(rightSession);
                     LOG.info("assigned a new round");
                 } catch (RpsSessionException rse) {
                     LOG.warn("RoundHandler create failed");
+                } finally {
+                    // push_back
+                    leftAgent.addSession(leftSession);
+                    rightAgent.addSession(rightSession);
                 }
             }
         }
@@ -191,6 +201,10 @@ public class Mediator {
         handlerMap.put(channel, handler);
     }
 
+    private void removeHandler(SocketChannel channel) {
+        handlerMap.remove(channel);
+    }
+    
     private SessionHandler getHandler(SocketChannel channel) {
         return handlerMap.get(channel);
     }
