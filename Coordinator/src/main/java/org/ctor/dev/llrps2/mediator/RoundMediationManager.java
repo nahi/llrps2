@@ -49,7 +49,8 @@ public class RoundMediationManager implements MessageListener {
 
     void notifyRoundResult(RoundMessage round) {
         if (!rounds.contains(round)) {
-            throw new IllegalStateException("unknown round message");
+            LOG.warn("unknown round message: " + round);
+            return;
         }
         if (!round.isCompleted()) {
             throw new IllegalStateException("round not finished");

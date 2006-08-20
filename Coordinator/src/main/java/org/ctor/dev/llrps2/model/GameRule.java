@@ -8,7 +8,8 @@ import static org.ctor.dev.llrps2.model.Move.*;
 public enum GameRule {
     // general R-P-S
     Normal(Rock, Scissors, Scissors, Paper, Paper, Rock, Rock, NotAMove,
-            Scissors, NotAMove, Paper, NotAMove);
+            Scissors, NotAMove, Paper, NotAMove, Rock, Surrender, Paper,
+            Surrender, Scissors, Surrender, NotAMove, Surrender);
 
     private Set<MovePair> decisionSet = new HashSet<MovePair>();
 

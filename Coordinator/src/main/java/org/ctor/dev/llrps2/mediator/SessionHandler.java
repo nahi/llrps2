@@ -37,6 +37,8 @@ public class SessionHandler {
 
     private String capacity = null;
 
+    private boolean inRecoveryMode = false;
+
     protected final RpsStateTransition state;
 
     private final SessionStub stub;
@@ -172,7 +174,13 @@ public class SessionHandler {
         checkRoundId(message);
         final Rps move = Rps.parse(message
                 .getParameter(RpsCommandParameter.Move));
-        getRoundHandler().notifyMove(this, move);
+        if (inRecoveryMode) {
+            sendResultUpdate(Rps.NotAMove);
+            sendMatch();
+            inRecoveryMode = false;
+        } else {
+            getRoundHandler().notifyMove(this, move);
+        }
     }
 
     void sendResultUpdate(Rps previousOppositeMove) throws RpsSessionException {
@@ -198,16 +206,44 @@ public class SessionHandler {
     }
 
     void close() throws IOException {
+        if (getRoundHandler() != null) {
+            getRoundHandler().notifySurrender(this);
+        }
         stub.close();
     }
 
-    /* call this to read channel when channel can be read */
-    long read() throws IOException {
-        return stub.read();
-    }
-
-    boolean hasCachedMessage() {
-        return stub.hasCachedMessage();
+    void recover() throws RpsSessionException {
+        LOG.info("recovery from " + state.getState() + " " + getAgentName());
+        switch (state.getState()) {
+        case START:
+        case ESTABLISHED:
+        case A_HELLO:
+        case C_HELLO:
+        case C_INITIATION:
+        case C_CLOSE:
+        case END:
+            throw new IllegalStateException("should not happen: "
+                    + state.getState());
+        case INITIATED:
+        case C_ROUND_READY:
+        case ROUND_READY:
+        case MATCH:
+            // nothing to do
+            break;
+        case CALL:
+            inRecoveryMode = true;
+            break;
+        case MOVE:
+            sendResultUpdate(Rps.NotAMove);
+            sendMatch();
+            break;
+        case RESULT_UPDATED:
+            sendMatch();
+            break;
+        default:
+            throw new IllegalArgumentException("unknown state "
+                    + state.getState());
+        }
     }
 
     private void checkSessionId(RpsMessage message)
@@ -237,12 +273,16 @@ public class SessionHandler {
         return roundHandler;
     }
 
-    // XXX RpsState: MATCH had to be merged with INITIATED...  too late.
+    // XXX RpsState: MATCH had to be merged with INITIATED... too late.
     public boolean isReadyForRoundStart() {
         return state.getState() == RpsState.INITIATED
                 || state.getState() == RpsState.MATCH;
     }
-    
+
+    public boolean isConnected() {
+        return getChannel().isConnected();
+    }
+
     public RpsState getState() {
         return state.getState();
     }
@@ -250,7 +290,7 @@ public class SessionHandler {
     public SocketChannel getChannel() {
         return stub.getChannel();
     }
-    
+
     public String getSessionId() {
         return sessionId;
     }

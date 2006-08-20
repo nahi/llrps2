@@ -71,8 +71,7 @@ public class SessionStub {
             if (readSize == -1) {
                 close();
                 LOG.info("reached end of stream");
-                throw new IOException("reached end of stream: read returns "
-                        + readSize);
+                throw new IOException("reached end of stream");
             }
             else {
                 buffer.flip();
