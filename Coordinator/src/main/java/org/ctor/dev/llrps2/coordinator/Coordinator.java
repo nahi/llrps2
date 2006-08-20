@@ -25,32 +25,43 @@ public class Coordinator {
     }
 
     public void start() throws IOException {
-        final RoundRuleMessage rule = RoundRuleMessage.create(5,
+        final RoundRuleMessage rule = RoundRuleMessage.create(100,
                 GameRule.Normal);
         int counter = 0;
         while (true) {
             System.out.println("agent request: send ?");
             readLineFromConsole();
-            final AgentMessage awkAgent = AgentMessage.create("awk client",
-                    "127.0.0.1", 0, true);
-            agentManager.requestAgentEnrollment(awkAgent);
-            final AgentMessage javaAgent = AgentMessage.create("ruby server",
+//            final AgentMessage awkAgent = AgentMessage.create("awk client",
+//                    "127.0.0.1", 0, true);
+//            agentManager.requestAgentEnrollment(awkAgent);
+            final AgentMessage rubyAgent1 = AgentMessage.create("ruby server1",
                     "127.0.0.1", 12347, false);
-            agentManager.requestAgentEnrollment(javaAgent);
-            final AgentMessage rubyAgent = AgentMessage.create("java server",
+            agentManager.requestAgentEnrollment(rubyAgent1);
+            final AgentMessage rubyAgent2 = AgentMessage.create("ruby server2",
+                    "127.0.0.1", 12348, false);
+            agentManager.requestAgentEnrollment(rubyAgent2);
+            final AgentMessage javaAgent = AgentMessage.create("java server",
                     "127.0.0.1", 12346, false);
-            agentManager.requestAgentEnrollment(rubyAgent);
+            agentManager.requestAgentEnrollment(javaAgent);
             System.out.println("sent 2 agents");
 
-            // System.out.println("round request: send ?");
-            // readLineFromConsole();
-            roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-                    + counter++, rule, awkAgent, rubyAgent));
-            roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-                    + counter++, rule, javaAgent, awkAgent));
-            roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-                    + counter++, rule, rubyAgent, javaAgent));
-            System.out.println("sent 1 round");
+             System.out.println("round request: send ?");
+             readLineFromConsole();
+            for (int idx = 0; idx < 20; ++idx) {
+//                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
+//                        + counter++, rule, awkAgent, javaAgent));
+                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
+                        + counter++, rule, rubyAgent1, rubyAgent2));
+//                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
+//                        + counter++, rule, awkAgent, rubyAgent1));
+                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
+                        + counter++, rule, javaAgent, rubyAgent2));
+//                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
+//                        + counter++, rule, awkAgent, rubyAgent2));
+                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
+                        + counter++, rule, javaAgent, rubyAgent1));
+            }
+            System.out.println("sent round");
         }
     }
 

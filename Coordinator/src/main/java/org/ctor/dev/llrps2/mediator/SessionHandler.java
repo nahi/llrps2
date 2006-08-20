@@ -242,6 +242,10 @@ public class SessionHandler {
         return state.getState() == RpsState.INITIATED
                 || state.getState() == RpsState.MATCH;
     }
+    
+    public RpsState getState() {
+        return state.getState();
+    }
 
     public SocketChannel getChannel() {
         return stub.getChannel();

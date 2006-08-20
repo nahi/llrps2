@@ -42,7 +42,6 @@ public class RoundMediationManager implements MessageListener {
             final RoundMessage round = (RoundMessage) obj.getObject();
             rounds.add(round);
             mediator.notifyRoundMediationRequest();
-
         } catch (JMSException e) {
             LOG.warn(e.getMessage(), e);
             throw new RuntimeException(e);

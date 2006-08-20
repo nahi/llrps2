@@ -42,8 +42,6 @@ public class RoundHandler {
         Validate.isTrue(right.isReadyForRoundStart());
         final RoundHandler handler = new RoundHandler(roundMediationManager,
                 round, left, right);
-        left.setRoundHandler(handler);
-        right.setRoundHandler(handler);
         return handler;
     }
 
@@ -62,6 +60,8 @@ public class RoundHandler {
         getRound().getLeft().setCname(left.getAgentName());
         getRound().getRight().setCname(right.getAgentName());
         getRound().setStartDateTime(DateTimeMapper.modelToMessage(now()));
+        left.setRoundHandler(this);
+        right.setRoundHandler(this);
         left.sendRoundReady(roundId, iteration, ruleId);
         right.sendRoundReady(roundId, iteration, ruleId);
     }
