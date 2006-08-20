@@ -38,7 +38,7 @@
                 <hibernatetool destdir="target/generated-sources">
                   <classpath refid="maven.compile.classpath"/>
                   <annotationconfiguration
-                    configurationfile="src/main/java/hibernate.cfg.xml"/>
+                    configurationfile="hibernate.cfg.xml"/>
                   <hbm2ddl drop="true"
                     create="true"
                     export="false"
@@ -117,6 +117,16 @@
       <version>3.2.0.beta6</version>
     </dependency>
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>3.2.0.cr1</version>
+    </dependency>
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-common</artifactId>
+      <version>4.0.2</version>
+    </dependency>
+    <dependency>
       <groupId>postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>8.1-407.jdbc3</version>
@@ -125,6 +135,16 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
       <version>2.0-rc2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jpa</artifactId>
+      <version>2.0-rc2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jencks</groupId>
+      <artifactId>jencks</artifactId>
+      <version>1.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -140,6 +160,11 @@
           <artifactId>activemq-web-demo</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-ra</artifactId>
+      <version>4.1-incubator-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>

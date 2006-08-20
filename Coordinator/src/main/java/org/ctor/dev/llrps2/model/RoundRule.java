@@ -1,8 +1,12 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.Validate;
 
-public class RoundRule {
+public class RoundRule implements Serializable {
+    private static final long serialVersionUID = 1;
+
     private final int gameCount;
 
     private final GameRule gameRule;

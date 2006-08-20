@@ -1,5 +1,7 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,37 +14,48 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
-public class Agent {
+public class Agent implements Serializable {
+    private static final long serialVersionUID = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
 
-    @Column(length = 255)
-    private String name = null;
+    @Column
+    private final Integer port;
 
-    @Column(length = 63, nullable = false, unique = true)
+    @Column(length = 255, nullable = false)
+    private final String name;
+
+    @Column(nullable = false)
+    private final boolean active;
+
+    // XXX should be unique
+    // @Column(length = 63, nullable = false, unique = true)
+    @Column(length = 63, nullable = false)
     private final String ipAddress;
 
-    static Agent create(String ipAddress) {
+    public static Agent create(String name, String ipAddress, Integer port,
+            boolean active) {
         Validate.notNull(ipAddress);
-        return new Agent(ipAddress);
+        Validate.isTrue(port >= 0);
+        Validate.notNull(name);
+        return new Agent(name, ipAddress, port, active);
     }
 
     Agent() {
-        this(null);
+        this(null, null, null, false);
     }
 
-    private Agent(String ipAddress) {
+    private Agent(String name, String ipAddress, Integer port, boolean active) {
+        this.name = name;
         this.ipAddress = ipAddress;
+        this.port = port;
+        this.active = active;
     }
 
     public Long getId() {
         return id;
-    }
-
-    void setName(String name) {
-        Validate.notNull(name);
-        this.name = name;
     }
 
     public String getName() {
@@ -51,6 +64,14 @@ public class Agent {
 
     public String getIpAddress() {
         return ipAddress;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     @Override

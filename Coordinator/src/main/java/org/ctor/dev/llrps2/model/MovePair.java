@@ -1,5 +1,6 @@
 package org.ctor.dev.llrps2.model;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -9,7 +10,13 @@ public class MovePair {
 
     private final Move right;
 
-    MovePair(Move left, Move right) {
+    public static MovePair create(Move left, Move right) {
+        Validate.notNull(left);
+        Validate.notNull(right);
+        return new MovePair(left, right);
+    }
+    
+    private MovePair(Move left, Move right) {
         this.right = right;
         this.left = left;
     }

@@ -17,14 +17,15 @@ public enum GameRule {
             throw new IllegalArgumentException();
         }
         for (int idx = 0; idx < moves.length / 2; ++idx) {
-            decisionSet.add(new MovePair(moves[idx * 2], moves[idx * 2 + 1]));
+            decisionSet
+                    .add(MovePair.create(moves[idx * 2], moves[idx * 2 + 1]));
         }
     }
 
     public int judge(Move left, Move right) {
-        if (decisionSet.contains(new MovePair(left, right))) {
+        if (decisionSet.contains(MovePair.create(left, right))) {
             return -1;
-        } else if (decisionSet.contains(new MovePair(right, left))) {
+        } else if (decisionSet.contains(MovePair.create(right, left))) {
             return 1;
         }
         return 0;

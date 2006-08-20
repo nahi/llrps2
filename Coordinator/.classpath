@@ -1,66 +1,77 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry output="target/test-classes" kind="src" path="src/test/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="M2_REPO/backport-util-concurrent/backport-util-concurrent/2.1/backport-util-concurrent-2.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/axis/axis/1.2-RC1/axis-1.2-RC1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/xmlpull/xmlpull/1.1.3.4d_b4_min/xmlpull-1.1.3.4d_b4_min.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-j2ee-connector_1.5_spec/1.0/geronimo-j2ee-connector_1.5_spec-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/jrms/jrms/1.1/jrms-1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/mortbay/jetty/jetty/6.0.0beta17/jetty-6.0.0beta17.jar"/>
-	<classpathentry kind="var" path="M2_REPO/asm/asm-attrs/1.5.3/asm-attrs-1.5.3.jar"/>
-	<classpathentry sourcepath="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1-sources.jar" kind="var" path="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.2/commons-pool-1.2.jar"/>
-	<classpathentry sourcepath="M2_REPO/org/hibernate/hibernate-annotations/3.2.0.cr1/hibernate-annotations-3.2.0.cr1-sources.jar" kind="var" path="M2_REPO/org/hibernate/hibernate-annotations/3.2.0.cr1/hibernate-annotations-3.2.0.cr1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-jsp_2.0_spec/1.0/geronimo-jsp_2.0_spec-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/2.1/commons-collections-2.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/mx4j/mx4j-jmx/2.1.1/mx4j-jmx-2.1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/mx4j/mx4j-impl/2.1.1/mx4j-impl-2.1.1.jar"/>
-	<classpathentry sourcepath="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3-sources.jar" kind="var" path="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/slf4j/nlog4j/1.2.24/nlog4j-1.2.24.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/activemq/activeio-core/3.0-SNAPSHOT/activeio-core-3.0-SNAPSHOT.jar"/>
-	<classpathentry sourcepath="M2_REPO/junit/junit/4.0/junit-4.0-sources.jar" kind="var" path="M2_REPO/junit/junit/4.0/junit-4.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/activemq/apache-activemq/4.1-incubator-SNAPSHOT/apache-activemq-4.1-incubator-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/checkstyle/checkstyle/2.2/checkstyle-2.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-optional/4.1-incubator-SNAPSHOT/activemq-optional-4.1-incubator-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/xstream/xstream/1.1.2/xstream-1.1.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.0.cr2/hibernate-3.2.0.cr2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
-	<classpathentry sourcepath="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1-sources.jar" kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/asm/asm/1.5.3/asm-1.5.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.6.1/commons-beanutils-1.6.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/mx4j/mx4j-remote/2.1.1/mx4j-remote-2.1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0-rc2/spring-2.0-rc2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
-	<classpathentry kind="var" path="M2_REPO/activemq/jmdns/1.0-RC2/jmdns-1.0-RC2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.3/commons-logging-1.0.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/mortbay/jetty/servlet-api-2.5/6.0.0beta17/servlet-api-2.5-6.0.0beta17.jar"/>
-	<classpathentry kind="var" path="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/xbean/xbean-spring/2.6-SNAPSHOT/xbean-spring-2.6-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.12/log4j-1.2.12.jar"/>
-	<classpathentry kind="var" path="M2_REPO/freemarker/freemarker/2.3.4/freemarker-2.3.4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/mx4j/mx4j/2.1.1/mx4j-2.1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/activesoap/jaxp-api/1.3/jaxp-api-1.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-j2ee-management_1.0_spec/1.0/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-httpclient/commons-httpclient/2.0.1/commons-httpclient-2.0.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/javax/persistence/ejb/3.0-public-draft-20060502/ejb-3.0-public-draft-20060502.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-j2ee-jacc_1.0_spec/1.0/geronimo-j2ee-jacc_1.0_spec-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/mx4j/mx4j-tools/2.1.1/mx4j-tools-2.1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.0/geronimo-jms_1.1_spec-1.0.jar"/>
-	<classpathentry sourcepath="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1-sources.jar" kind="var" path="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-jaas/4.1-incubator-SNAPSHOT/activemq-jaas-4.1-incubator-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-core/4.1-incubator-SNAPSHOT/activemq-core-4.1-incubator-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/mortbay/jetty/jetty-util/6.0.0beta17/jetty-util-6.0.0beta17.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-tools/3.2.0.beta6/hibernate-tools-3.2.0.beta6.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-console/4.1-incubator-SNAPSHOT/activemq-console-4.1-incubator-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6/antlr-2.7.6.jar"/>
-	<classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="var" path="M2_REPO/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-entitymanager/3.2.0.cr1/hibernate-entitymanager-3.2.0.cr1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.0.cr2/hibernate-3.2.0.cr2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-j2ee-management_1.0_spec/1.0/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jencks/jencks/1.2/jencks-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" sourcepath="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6/antlr-2.7.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mx4j/mx4j-tools/2.1.1/mx4j-tools-2.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.12/log4j-1.2.12.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/nlog4j/1.2.24/nlog4j-1.2.24.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mx4j/mx4j/2.1.1/mx4j-2.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-httpclient/commons-httpclient/2.0.1/commons-httpclient-2.0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mortbay/jetty/servlet-api-2.5/6.0.0beta17/servlet-api-2.5-6.0.0beta17.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0-rc2/spring-2.0-rc2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/2.1/commons-collections-2.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/concurrent/concurrent/1.3.4/concurrent-1.3.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-tools/3.2.0.beta6/hibernate-tools-3.2.0.beta6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jrms/jrms/1.1/jrms-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-jta_1.0.1B_spec/1.0/geronimo-jta_1.0.1B_spec-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/activesoap/jaxp-api/1.3/jaxp-api-1.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.2/commons-pool-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-annotations/3.2.0.cr1/hibernate-annotations-3.2.0.cr1.jar" sourcepath="M2_REPO/org/hibernate/hibernate-annotations/3.2.0.cr1/hibernate-annotations-3.2.0.cr1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mx4j/mx4j-impl/2.1.1/mx4j-impl-2.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/4.0/junit-4.0.jar" sourcepath="M2_REPO/junit/junit/4.0/junit-4.0-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-j2ee-jacc_1.0_spec/1.0/geronimo-j2ee-jacc_1.0_spec-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xmlpull/xmlpull/1.1.3.4d_b4_min/xmlpull-1.1.3.4d_b4_min.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mortbay/jetty/jetty/6.0.0beta17/jetty-6.0.0beta17.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-ra/4.1-incubator-SNAPSHOT/activemq-ra-4.1-incubator-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/activemq/jmdns/1.0-RC2/jmdns-1.0-RC2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/persistence/ejb/3.0-public-draft-20060502/ejb-3.0-public-draft-20060502.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.0/geronimo-jms_1.1_spec-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/activemq/activeio-core/3.0-SNAPSHOT/activeio-core-3.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-jpa/2.0-rc2/spring-jpa-2.0-rc2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/asm/asm-attrs/1.5.3/asm-attrs-1.5.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/checkstyle/checkstyle/2.2/checkstyle-2.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-core/4.1-incubator-SNAPSHOT/activemq-core-4.1-incubator-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-jsp_2.0_spec/1.0/geronimo-jsp_2.0_spec-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-console/4.1-incubator-SNAPSHOT/activemq-console-4.1-incubator-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-jaas/4.1-incubator-SNAPSHOT/activemq-jaas-4.1-incubator-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jboss/jboss-common/4.0.2/jboss-common-4.0.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/geronimo/geronimo-transaction/1.0/geronimo-transaction-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/activemq/apache-activemq/4.1-incubator-SNAPSHOT/apache-activemq-4.1-incubator-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-optional/4.1-incubator-SNAPSHOT/activemq-optional-4.1-incubator-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1.jar" sourcepath="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/axis/axis/1.2-RC1/axis-1.2-RC1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.3/commons-logging-1.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/geronimo/geronimo-connector/1.0/geronimo-connector-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mx4j/mx4j-jmx/2.1.1/mx4j-jmx-2.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mx4j/mx4j-remote/2.1.1/mx4j-remote-2.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jencks/xapool-without-pool/1.4/xapool-without-pool-1.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/slide/webdavlib/2.0/webdavlib-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/asm/asm/1.5.3/asm-1.5.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/xbean/xbean-spring/2.6-SNAPSHOT/xbean-spring-2.6-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-j2ee-connector_1.5_spec/1.0/geronimo-j2ee-connector_1.5_spec-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/backport-util-concurrent/backport-util-concurrent/2.1/backport-util-concurrent-2.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-dbcp/commons-dbcp/1.2/commons-dbcp-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3.jar" sourcepath="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mortbay/jetty/jetty-util/6.0.0beta17/jetty-util-6.0.0beta17.jar"/>
+  <classpathentry kind="var" path="M2_REPO/freemarker/freemarker/2.3.4/freemarker-2.3.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xstream/xstream/1.1.2/xstream-1.1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.6.1/commons-beanutils-1.6.1.jar"/>
 </classpath>

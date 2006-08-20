@@ -1,123 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans
   xmlns="http://www.springframework.org/schema/beans"
+  xmlns:tx="http://www.springframework.org/schema/tx"
   xmlns:amq="http://activemq.org/config/1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
   http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd
   http://activemq.org/config/1.0
   http://people.apache.org/repository/org.apache.activemq/xsds/activemq-core-4.1-incubator-SNAPSHOT.xsd">
 
   <!-- import properties -->
-  
+
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="classpath:org/ctor/dev/llrps2/llrps2.properties" />
   </bean>
 
   <!-- Object persistence -->
-  
-  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="driverClassName" value="org.postgresql.Driver" />
-    <property name="url" value="${jdbc.url}" />
-    <property name="username" value="${jdbc.username}" />
-    <property name="password" value="${jdbc.password}" />
+  <!-- see also META-INF/persistence.xml -->
+
+  <tx:annotation-driven transaction-manager="transactionManager" />
+
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
   </bean>
 
-  <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-    <property name="dataSource" ref="dataSource"/>
-    <property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration" />
-    <property name="configLocation" value="classpath:org/ctor/dev/llrps2/coordinator/hibernate.cfg.xml"/>
-  </bean>
-
-  <bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory"><ref local="sessionFactory"/></property>
-  </bean>
-
-  <!-- make sure that classes with @Transactional have the proper tx proxy -->
-  <!-- bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/ -->
-
-  <bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
-    <property name="transactionInterceptor" ref="txInterceptor"/>
-  </bean>
-
-  <bean id="txInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
-    <property name="transactionManager" ref="txManager"/>
-    <property name="transactionAttributeSource">
-      <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <property name="persistenceUnitName" value="org.ctor.dev.llrps2.dao.persistenceManagerFactory" />
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="database" value="POSTGRESQL" />
+        <property name="showSql" value="true" />
+      </bean>
+    </property>
+    <property name="loadTimeWeaver">
+      <bean class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver"/>
     </property>
   </bean>
-  
+
+  <!-- DAO definition -->
+
+  <bean id="agentDao" class="org.ctor.dev.llrps2.persistence.AgentDaoJpaImpl">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
+
+  <bean id="contestDao" class="org.ctor.dev.llrps2.persistence.ContestDaoJpaImpl">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
+
+  <bean id="roundDao" class="org.ctor.dev.llrps2.persistence.RoundDaoJpaImpl">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
+
   <!-- JMS generic definition -->
-  
+
   <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
   </bean>
 
   <bean id="jmsConnectionFactory"
-      class="org.apache.activemq.pool.PooledConnectionFactory"
-      depends-on="jmsBroker">
+    class="org.apache.activemq.pool.PooledConnectionFactory"
+    depends-on="jmsBroker">
     <property name="connectionFactory">
       <bean class="org.apache.activemq.ActiveMQConnectionFactory">
         <property name="brokerURL" value="${activemq.brokerurl}" />
       </bean>
     </property>
   </bean>
-  
+
   <!-- Message broker definition -->
-  
+
   <bean id="jmsBroker" class="org.apache.activemq.xbean.BrokerFactoryBean">
     <property name="config" value="classpath:org/ctor/dev/llrps2/coordinator/activemq.xml" />
     <property name="start" value="true" />
   </bean>
-  
+
   <!-- JMS queue definition -->
   
-  <bean id="agentEnrollmentRequest" class="org.apache.activemq.command.ActiveMQQueue">
-    <constructor-arg value="urn:org.ctor.dev.llrps2.agentEnrollmentRequest" />
+  <!-- urn:org.ctor.dev.llrps2.agentEnrollmentRequest -->
+  <!-- urn:org.ctor.dev.llrps2.roundMediationRequest -->
+  <!-- urn:org.ctor.dev.llrps2.connectedAgentNotification -->
+  <!-- urn:org.ctor.dev.llrps2.roundResultNotification -->
+
+  <!-- JCA container definition -->
+
+  <bean id="jmsResourceAdapter" class="org.apache.activemq.ra.ActiveMQResourceAdapter" depends-on="jmsBroker">
+    <property name="serverUrl" value="${activemq.brokerurl}"/>
   </bean>
-  
-  <bean id="roundMediationRequest" class="org.apache.activemq.command.ActiveMQQueue">
-    <constructor-arg value="urn:org.ctor.dev.llrps2.roundMediationRequest" />
+
+  <bean id="jencksJCAContainer" class="org.jencks.JCAContainer">
+    <property name="bootstrapContext">
+      <bean class="org.jencks.factory.BootstrapContextFactoryBean">
+        <property name="threadPoolSize" value="25"/>
+      </bean>
+    </property>
+    <property name="resourceAdapter" ref="jmsResourceAdapter"/>
   </bean>
-  
-  <bean id="connectedAgentNotification" class="org.apache.activemq.command.ActiveMQQueue">
-    <constructor-arg value="urn:org.ctor.dev.llrps2.connectedAgentNotification" />
-  </bean>
-  
-  <bean id="roundResultNotification" class="org.apache.activemq.command.ActiveMQQueue">
-    <constructor-arg value="urn:org.ctor.dev.llrps2.roundResultNotification" />
-  </bean>
-  
-  <!-- JMS container definition -->
-  
-  <bean id="agentManager" class="org.ctor.dev.llrps2.coordinator.AgentManager">
+
+  <bean id="agentConnector" class="org.ctor.dev.llrps2.coordinator.AgentConnector">
     <constructor-arg ref="jmsTemplate" />
-    <property name="coordinator" ref="coordinator" />
-    <property name="agentEnrollmentRequestDestination" ref="agentEnrollmentRequest" />
+    <property name="agentManager" ref="agentManager" />
+    <property name="agentEnrollmentRequestDestination" value="urn:org.ctor.dev.llrps2.agentEnrollmentRequest" />
   </bean>
-  <bean id="agentManagerContainer"
-    class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-    <property name="connectionFactory" ref="jmsConnectionFactory" />
-    <property name="messageListener" ref="agentManager" />
-    <property name="destination" ref="connectedAgentNotification" />
+  <bean id="agentConnectorContainer" class="org.jencks.JCAConnector">
+    <property name="jcaContainer" ref="jencksJCAContainer" />
+    <property name="activationSpec">
+      <bean class="org.apache.activemq.ra.ActiveMQActivationSpec">
+        <property name="destination" value="urn:org.ctor.dev.llrps2.connectedAgentNotification" />
+        <property name="destinationType" value="javax.jms.Queue"/>
+      </bean>
+    </property>
+    <property name="ref" value="agentConnector"/>
+  </bean>
+
+  <bean id="roundConnector" class="org.ctor.dev.llrps2.coordinator.RoundConnector">
+    <constructor-arg ref="jmsTemplate" />
+    <property name="roundManager" ref="roundManager" />
+    <property name="roundMediationRequestDestination" value="urn:org.ctor.dev.llrps2.roundMediationRequest" />
+  </bean>
+  <bean id="roundConnectorContainer" class="org.jencks.JCAConnector">
+    <property name="jcaContainer" ref="jencksJCAContainer" />
+    <property name="activationSpec">
+      <bean class="org.apache.activemq.ra.ActiveMQActivationSpec">
+        <property name="destination" value="urn:org.ctor.dev.llrps2.roundResultNotification" />
+        <property name="destinationType" value="javax.jms.Queue"/>
+      </bean>
+    </property>
+    <property name="ref" value="roundConnector"/>
+  </bean>
+
+  <!-- Application definition -->
+
+  <bean id="agentManager" class="org.ctor.dev.llrps2.coordinator.AgentManager">
+    <property name="agentConnector" ref="agentConnector" />
+    <property name="agentDao" ref="agentDao" />
   </bean>
 
   <bean id="roundManager" class="org.ctor.dev.llrps2.coordinator.RoundManager">
-    <constructor-arg ref="jmsTemplate" />
-    <property name="coordinator" ref="coordinator" />
-    <property name="roundMediationRequestDestination" ref="roundMediationRequest" />
+    <property name="roundConnector" ref="roundConnector" />
+    <property name="roundDao" ref="roundDao" />
   </bean>
-  <bean id="roundManagerContainer"
-    class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-    <property name="connectionFactory" ref="jmsConnectionFactory" />
-    <property name="messageListener" ref="roundManager" />
-    <property name="destination" ref="roundResultNotification" />
-  </bean>
-  
-  <!-- Application definition -->
-  
+
   <bean id="coordinator" class="org.ctor.dev.llrps2.coordinator.Coordinator">
     <property name="agentManager" ref="agentManager" />
     <property name="roundManager" ref="roundManager" />
+    <property name="contestDao" ref="contestDao" />
   </bean>
 </beans>

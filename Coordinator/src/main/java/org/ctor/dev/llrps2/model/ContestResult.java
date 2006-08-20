@@ -1,5 +1,6 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 
 import javax.persistence.Column;
@@ -15,7 +16,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
-public class ContestResult {
+public class ContestResult implements Serializable {
+    private static final long serialVersionUID = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
@@ -30,7 +33,7 @@ public class ContestResult {
     @Column
     private GregorianCalendar finishDateTime = null;
 
-    static ContestResult create(Contest contest) {
+    public static ContestResult create(Contest contest) {
         Validate.notNull(contest);
         return new ContestResult(contest);
     }

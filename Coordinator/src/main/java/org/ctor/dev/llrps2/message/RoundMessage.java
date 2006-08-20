@@ -8,13 +8,14 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.ctor.dev.llrps2.model.RoundRule;
 
 public class RoundMessage implements Serializable {
     private static final long serialVersionUID = 1;
 
     private final String roundId;
 
-    private final RoundRuleMessage rule;
+    private final RoundRule rule;
 
     private final AgentMessage left;
 
@@ -28,7 +29,7 @@ public class RoundMessage implements Serializable {
 
     private final List<GameMessage> games = new ArrayList<GameMessage>();
 
-    public static RoundMessage create(String roundId, RoundRuleMessage rule,
+    public static RoundMessage create(String roundId, RoundRule rule,
             AgentMessage left, AgentMessage right) {
         Validate.notNull(roundId);
         Validate.notNull(rule);
@@ -37,7 +38,7 @@ public class RoundMessage implements Serializable {
         return new RoundMessage(roundId, rule, left, right);
     }
 
-    private RoundMessage(String roundId, RoundRuleMessage rule,
+    private RoundMessage(String roundId, RoundRule rule,
             AgentMessage left, AgentMessage right) {
         this.roundId = roundId;
         this.rule = rule;
@@ -49,7 +50,7 @@ public class RoundMessage implements Serializable {
         return roundId;
     }
 
-    public RoundRuleMessage getRule() {
+    public RoundRule getRule() {
         return rule;
     }
 

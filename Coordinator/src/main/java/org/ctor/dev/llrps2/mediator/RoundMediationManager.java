@@ -3,7 +3,6 @@ package org.ctor.dev.llrps2.mediator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -22,7 +21,7 @@ public class RoundMediationManager implements MessageListener {
 
     private Mediator mediator = null;
 
-    private Destination roundResultNotificationDestination = null;
+    private String roundResultNotificationDestination = null;
 
     private final List<RoundMessage> rounds = new CopyOnWriteArrayList<RoundMessage>();
 
@@ -70,11 +69,11 @@ public class RoundMediationManager implements MessageListener {
     }
 
     public void setRoundResultNotificationDestination(
-            Destination roundResultNotificationDestination) {
+            String roundResultNotificationDestination) {
         this.roundResultNotificationDestination = roundResultNotificationDestination;
     }
 
-    public Destination getRoundResultNotificationDestination() {
+    public String getRoundResultNotificationDestination() {
         return roundResultNotificationDestination;
     }
 

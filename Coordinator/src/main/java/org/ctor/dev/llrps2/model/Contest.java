@@ -1,5 +1,6 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -24,7 +25,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
-public class Contest {
+public class Contest implements Serializable {
+    private static final long serialVersionUID = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
@@ -44,7 +47,7 @@ public class Contest {
     @OrderBy("id")
     private final List<Round> rounds;
 
-    static Contest create(String name) {
+    public static Contest create(String name) {
         Validate.notNull(name);
         return new Contest(name);
     }

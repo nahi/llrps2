@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -24,7 +23,7 @@ public class AgentEnrollmentManager implements MessageListener {
 
     private Mediator mediator = null;
 
-    private Destination connectedAgentNotificationDestination = null;
+    private String connectedAgentNotificationDestination = null;
 
     private final Set<EnrolledAgent> agents = new CopyOnWriteArraySet<EnrolledAgent>();
 
@@ -74,11 +73,11 @@ public class AgentEnrollmentManager implements MessageListener {
     }
 
     public void setConnectedAgentNotificationDestination(
-            Destination connectedAgentNotificationDestination) {
+            String connectedAgentNotificationDestination) {
         this.connectedAgentNotificationDestination = connectedAgentNotificationDestination;
     }
 
-    public Destination getConnectedAgentNotificationDestination() {
+    public String getConnectedAgentNotificationDestination() {
         return connectedAgentNotificationDestination;
     }
 

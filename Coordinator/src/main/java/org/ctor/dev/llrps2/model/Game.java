@@ -1,5 +1,6 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -19,7 +20,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "gameNumber",
         "round_id" }) })
-public class Game {
+public class Game implements Serializable {
+    private static final long serialVersionUID = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
@@ -39,7 +42,7 @@ public class Game {
     @ManyToOne(optional = false)
     private final Round round;
 
-    static Game create(Integer gameNumber, Round round) {
+    public static Game create(Integer gameNumber, Round round) {
         Validate.notNull(gameNumber);
         Validate.notNull(round);
         final Game game = new Game(gameNumber, round);

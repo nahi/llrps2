@@ -11,8 +11,8 @@ public class AgentTest extends AbstractTest {
         final Transaction tx = session.beginTransaction();
         clean();
         for (int idx = 0; idx < 5; ++idx) {
-            final Agent newAgent = Agent.create("192.168.1." + idx);
-            newAgent.setName("agent_" + idx);
+            final Agent newAgent = Agent.create("agent_" + idx, "192.168.1."
+                    + idx, 0, true);
             session.save(newAgent);
         }
         session.flush();

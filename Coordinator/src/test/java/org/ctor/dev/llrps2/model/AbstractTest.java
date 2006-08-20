@@ -55,8 +55,8 @@ public abstract class AbstractTest {
 
     protected void createAgents(int agents) {
         for (int idx = 0; idx < agents; ++idx) {
-            final Agent newAgent = Agent.create("192.168.1." + idx);
-            newAgent.setName("agent_" + idx);
+            final Agent newAgent = Agent.create("agent_" + idx, "192.168.1."
+                    + idx, null, false);
             session.save(newAgent);
         }
     }
