@@ -30,25 +30,20 @@
   <bean id="agentEnrollmentRequest" class="org.apache.activemq.command.ActiveMQQueue">
     <constructor-arg value="urn:org.ctor.dev.llrps2.agentEnrollmentRequest" />
   </bean>
-  
+
   <bean id="roundMediationRequest" class="org.apache.activemq.command.ActiveMQQueue">
     <constructor-arg value="urn:org.ctor.dev.llrps2.roundMediationRequest" />
   </bean>
   
-  <bean id="connectedAgentNotification" class="org.apache.activemq.command.ActiveMQQueue">
-    <constructor-arg value="urn:org.ctor.dev.llrps2.connectedAgentNotification" />
-  </bean>
-  
-  <bean id="roundResultNotification" class="org.apache.activemq.command.ActiveMQQueue">
-    <constructor-arg value="urn:org.ctor.dev.llrps2.roundResultNotification" />
-  </bean>
+  <!-- urn:org.ctor.dev.llrps2.connectedAgentNotification -->
+  <!-- urn:org.ctor.dev.llrps2.roundResultNotification -->
 
   <!-- JMS container definition -->
   
   <bean id="agentEnrollmentManager" class="org.ctor.dev.llrps2.mediator.AgentEnrollmentManager">
     <constructor-arg ref="jmsTemplate" />
     <property name="mediator" ref="mediator" />
-    <property name="connectedAgentNotificationDestination" ref="connectedAgentNotification" />
+    <property name="connectedAgentNotificationDestination" value="urn:org.ctor.dev.llrps2.connectedAgentNotification" />
   </bean>
   <bean id="agentEnrollmentManagerContainer"
     class="org.springframework.jms.listener.DefaultMessageListenerContainer">
@@ -60,7 +55,7 @@
   <bean id="roundMediationManager" class="org.ctor.dev.llrps2.mediator.RoundMediationManager">
     <constructor-arg ref="jmsTemplate" />
     <property name="mediator" ref="mediator" />
-    <property name="roundResultNotificationDestination" ref="roundResultNotification" />
+    <property name="roundResultNotificationDestination" value="urn:org.ctor.dev.llrps2.roundResultNotification" />
   </bean>
   <bean id="roundMediationManagerContainer"
     class="org.springframework.jms.listener.DefaultMessageListenerContainer">

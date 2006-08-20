@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
+  <persistence-unit name="org.ctor.dev.llrps2.dao.persistenceManagerFactory" transaction-type="RESOURCE_LOCAL">
+    <class>org.ctor.dev.llrps2.model.Contest</class>
+    <class>org.ctor.dev.llrps2.model.Round</class>
+    <class>org.ctor.dev.llrps2.model.Game</class>
+    <class>org.ctor.dev.llrps2.model.RoundPlayer</class>
+    <class>org.ctor.dev.llrps2.model.Agent</class>
+    <class>org.ctor.dev.llrps2.model.ContestResult</class>
+    <class>org.ctor.dev.llrps2.model.RoundResult</class>
+    <properties>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+      <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
+      <property name="hibernate.connection.url" value="jdbc:postgresql://localhost/llrps2" />
+      <property name="hibernate.connection.username" value="llrps2" />
+      <property name="hibernate.connection.password" value="llrps2" />
+    </properties>
+  </persistence-unit>
+</persistence>

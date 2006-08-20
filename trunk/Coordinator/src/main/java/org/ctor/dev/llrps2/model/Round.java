@@ -1,5 +1,6 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -22,7 +23,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
-public class Round {
+public class Round implements Serializable {
+    private static final long serialVersionUID = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
@@ -55,8 +58,8 @@ public class Round {
     @OrderBy("gameNumber")
     private final List<Game> games;
 
-    static Round create(Contest contest, String name, Agent left, Agent right,
-            RoundRule rule) {
+    public static Round create(Contest contest, String name, Agent left,
+            Agent right, RoundRule rule) {
         Validate.notNull(contest);
         Validate.notNull(name);
         Validate.notNull(left);
@@ -149,15 +152,18 @@ public class Round {
                 getResult()).toString();
     }
 
-    public void start() {
-        getResult().setStartDateTime(new GregorianCalendar());
+    public void setStartDateTime(GregorianCalendar dateTime) {
+        getResult().setStartDateTime(dateTime);
     }
 
-    public void finish() {
-        getResult().setFinishDateTime(new GregorianCalendar());
+    public void setFinishDateTime(GregorianCalendar dateTime) {
+        getResult().setFinishDateTime(dateTime);
+    }
+
+    public void count() {
         countGames();
     }
-    
+
     private void countGames() {
         int leftGames = 0;
         int rightGames = 0;
@@ -167,7 +173,8 @@ public class Round {
         int maxRightStraightGames = 0;
         int rightStraightGames = 0;
         for (Game game : getGames()) {
-            game.setJudge(gameRule.judge(game.getLeftMove(), game.getRightMove()));
+            game.setJudge(gameRule.judge(game.getLeftMove(), game
+                    .getRightMove()));
             switch (game.getJudge()) {
             case -1:
                 leftGames += 1;

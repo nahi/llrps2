@@ -1,5 +1,6 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 
 import javax.persistence.Column;
@@ -15,7 +16,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
-public class RoundResult {
+public class RoundResult implements Serializable {
+    private static final long serialVersionUID = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
@@ -44,7 +47,7 @@ public class RoundResult {
     @Column(nullable = false)
     private int maxRightStraightGames = 0;
 
-    static RoundResult create(Round round) {
+    public static RoundResult create(Round round) {
         Validate.notNull(round);
         return new RoundResult(round);
     }

@@ -1,5 +1,7 @@
 package org.ctor.dev.llrps2.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +16,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
-public class RoundPlayer {
+public class RoundPlayer implements Serializable {
+    private static final long serialVersionUID = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
@@ -31,7 +35,7 @@ public class RoundPlayer {
     @Column(length = 255)
     private String cname = null;
 
-    static RoundPlayer createAsLeft(Agent agent, Round round) {
+    public static RoundPlayer createAsLeft(Agent agent, Round round) {
         Validate.notNull(agent);
         Validate.notNull(round);
         return new RoundPlayer(agent, round, null);

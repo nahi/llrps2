@@ -3,18 +3,28 @@ package org.ctor.dev.llrps2.coordinator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.message.AgentMapper;
 import org.ctor.dev.llrps2.message.AgentMessage;
-import org.ctor.dev.llrps2.message.RoundMessage;
-import org.ctor.dev.llrps2.message.RoundRuleMessage;
+import org.ctor.dev.llrps2.model.Agent;
+import org.ctor.dev.llrps2.model.Contest;
 import org.ctor.dev.llrps2.model.GameRule;
+import org.ctor.dev.llrps2.model.RoundRule;
+import org.ctor.dev.llrps2.persistence.ContestDao;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Coordinator {
+    private static final Log LOG = LogFactory.getLog(Coordinator.class);
 
-    private AgentManager agentManager = null;
+    private AgentManager2 agentManager = null;
 
-    private RoundManager roundManager = null;
+    private RoundManagers roundManager = null;
+
+    private ContestDao contestDao = null;
 
     public static void main(String[] args) throws IOException {
         final ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
@@ -24,42 +34,40 @@ public class Coordinator {
         mgr.start();
     }
 
+    public List<Agent> addAgents() {
+        final List<Agent> ary = new ArrayList<Agent>();
+        ary.add(getAgentManager().addPassiveAgent("ruby server1", "127.0.0.1", 12347));
+        ary.add(getAgentManager().addPassiveAgent("ruby server2", "127.0.0.1", 12348));
+        ary.add(getAgentManager().addPassiveAgent("java server", "127.0.0.1", 12346));
+        return ary;
+    }
+
     public void start() throws IOException {
-        final RoundRuleMessage rule = RoundRuleMessage.create(100,
-                GameRule.Normal);
+        final RoundRule rule = RoundRule.create(50, GameRule.Normal);
         int counter = 0;
+        final List<Agent> agents = addAgents();
+        final Contest contest = Contest.create("c_1");
+        contestDao.save(contest);
+        contestDao.flush();
         while (true) {
             System.out.println("agent request: send ?");
             readLineFromConsole();
-//            final AgentMessage awkAgent = AgentMessage.create("awk client",
-//                    "127.0.0.1", 0, true);
-//            agentManager.requestAgentEnrollment(awkAgent);
-            final AgentMessage rubyAgent1 = AgentMessage.create("ruby server1",
-                    "127.0.0.1", 12347, false);
-            agentManager.requestAgentEnrollment(rubyAgent1);
-            final AgentMessage rubyAgent2 = AgentMessage.create("ruby server2",
-                    "127.0.0.1", 12348, false);
-            agentManager.requestAgentEnrollment(rubyAgent2);
-            final AgentMessage javaAgent = AgentMessage.create("java server",
-                    "127.0.0.1", 12346, false);
-            agentManager.requestAgentEnrollment(javaAgent);
-            System.out.println("sent 2 agents");
+            for (Agent agent : agents) {
+                agentManager.requestAgentEnrollment(agent);
+            }
+            System.out.println("sent agent(s)");
 
-             System.out.println("round request: send ?");
-             readLineFromConsole();
-            for (int idx = 0; idx < 20; ++idx) {
-//                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-//                        + counter++, rule, awkAgent, javaAgent));
-                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-                        + counter++, rule, rubyAgent1, rubyAgent2));
-//                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-//                        + counter++, rule, awkAgent, rubyAgent1));
-                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-                        + counter++, rule, javaAgent, rubyAgent2));
-//                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-//                        + counter++, rule, awkAgent, rubyAgent2));
-                roundManager.requestRoundMediation(RoundMessage.create("C1_R"
-                        + counter++, rule, javaAgent, rubyAgent1));
+            System.out.println("round request: send ?");
+            readLineFromConsole();
+            for (int idx = 0; idx < 5; ++idx) {
+                getRoundManager().requestRoundMediation(contest,
+                        "r_" + ++counter, agents.get(0), agents.get(1), rule);
+
+                getRoundManager().requestRoundMediation(contest,
+                        "r_" + ++counter, agents.get(1), agents.get(2), rule);
+
+                getRoundManager().requestRoundMediation(contest,
+                        "r_" + ++counter, agents.get(2), agents.get(0), rule);
             }
             System.out.println("sent round");
         }
@@ -71,19 +79,27 @@ public class Coordinator {
         return reader.readLine();
     }
 
-    public void setAgentManager(AgentManager contestantManager) {
-        this.agentManager = contestantManager;
+    public void setAgentManager(AgentManager2 agentManager) {
+        this.agentManager = agentManager;
     }
 
-    public AgentManager getAgentManager() {
+    public AgentManager2 getAgentManager() {
         return agentManager;
     }
 
-    public void setRoundManager(RoundManager roundResultManager) {
-        this.roundManager = roundResultManager;
+    public void setRoundManager(RoundManagers roundManager) {
+        this.roundManager = roundManager;
     }
 
-    public RoundManager getRoundManager() {
+    public RoundManagers getRoundManager() {
         return roundManager;
+    }
+
+    public void setContestDao(ContestDao contestDao) {
+        this.contestDao = contestDao;
+    }
+
+    public ContestDao getContestDao() {
+        return contestDao;
     }
 }

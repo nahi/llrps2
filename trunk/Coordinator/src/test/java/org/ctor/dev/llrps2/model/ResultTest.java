@@ -2,6 +2,7 @@ package org.ctor.dev.llrps2.model;
 
 import static org.junit.Assert.*;
 
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.hibernate.Transaction;
@@ -19,7 +20,7 @@ public class ResultTest extends AbstractTest {
             public MovePair move(int gameNumber) {
                 final Move left = Move.values()[randomIndex(Move.values().length)];
                 final Move right = Move.values()[randomIndex(Move.values().length)];
-                return new MovePair(left, right);
+                return MovePair.create(left, right);
             }
         }, agentCount, roundCount, gameCount);
         for (Round round : contest.getRounds()) {
@@ -41,7 +42,7 @@ public class ResultTest extends AbstractTest {
         int gameCount = 20;
         final Contest contest = doContest(new TestContest() {
             public MovePair move(int gameNumber) {
-                return new MovePair(Move.Rock, Move.Scissors);
+                return MovePair.create(Move.Rock, Move.Scissors);
             }
         }, agentCount, roundCount, gameCount);
         for (Round round : contest.getRounds()) {
@@ -64,7 +65,7 @@ public class ResultTest extends AbstractTest {
         int gameCount = 20;
         final Contest contest = doContest(new TestContest() {
             public MovePair move(int gameNumber) {
-                return new MovePair(Move.Rock, Move.Paper);
+                return MovePair.create(Move.Rock, Move.Paper);
             }
         }, agentCount, roundCount, gameCount);
         for (Round round : contest.getRounds()) {
@@ -88,11 +89,11 @@ public class ResultTest extends AbstractTest {
         final Contest contest = doContest(new TestContest() {
             public MovePair move(int gameNumber) {
                 if (gameNumber < 10) {
-                    return new MovePair(Move.NotAMove, Move.Rock);
+                    return MovePair.create(Move.NotAMove, Move.Rock);
                 } else if (gameNumber == 10) {
-                    return new MovePair(Move.NotAMove, Move.NotAMove);
+                    return MovePair.create(Move.NotAMove, Move.NotAMove);
                 } else {
-                    return new MovePair(Move.Scissors, Move.NotAMove);
+                    return MovePair.create(Move.Scissors, Move.NotAMove);
                 }
             }
         }, agentCount, roundCount, gameCount);
@@ -130,14 +131,15 @@ public class ResultTest extends AbstractTest {
             final Round round = Round.create(contest, roundName, left, right,
                     rule);
             session.save(round);
-            round.start();
+            round.setStartDateTime(new GregorianCalendar());
             for (int gameIdx = 0; gameIdx < gameCount; ++gameIdx) {
                 final Game game = Game.create(gameIdx + 1, round);
                 final MovePair pair = moveCallback.move(gameIdx + 1);
                 game.setLeftMove(pair.getLeft());
                 game.setRightMove(pair.getRight());
             }
-            round.finish();
+            round.setFinishDateTime(new GregorianCalendar());
+            round.count();
         }
         contest.finish();
         return contest;
