@@ -14,20 +14,21 @@ public class AgentMessage implements Serializable {
 
     private final String ipAddress;
 
-    private final int port;
+    private final Integer port;
 
     private final boolean active;
 
     private String cname = null;
 
-    public static AgentMessage create(String name, String ipAddress, int port,
-            boolean active) {
+    public static AgentMessage create(String name, String ipAddress,
+            Integer port, boolean active) {
         Validate.notNull(name);
         Validate.notNull(ipAddress);
         return new AgentMessage(name, ipAddress, port, active);
     }
 
-    private AgentMessage(String name, String ipAddress, int port, boolean active) {
+    private AgentMessage(String name, String ipAddress, Integer port,
+            boolean active) {
         this.name = name;
         this.ipAddress = ipAddress;
         this.port = port;
@@ -42,7 +43,7 @@ public class AgentMessage implements Serializable {
         return ipAddress;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 

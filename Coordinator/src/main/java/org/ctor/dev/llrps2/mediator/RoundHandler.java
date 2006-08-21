@@ -130,8 +130,13 @@ public class RoundHandler {
                 newgame.setRightMove(Move.Surrender);
             }
         }
-        getRound().setFinishDateTime(DateTimeMapper.modelToMessage(now()));
-        roundMediationManager.notifyRoundResult(getRound());
+        notifyRoundResult();
+        // close opposite side, too.  XXX Too difficult for recovery...
+        if (isLeft) {
+            getRight().close();
+        } else {
+            getLeft().close();
+        }
     }
 
     private void completeGame() throws RpsSessionException {
@@ -158,6 +163,13 @@ public class RoundHandler {
         getRound().setFinishDateTime(DateTimeMapper.modelToMessage(now()));
         left.sendMatch();
         right.sendMatch();
+        notifyRoundResult();
+    }
+
+    private void notifyRoundResult() {
+        getRound().setFinishDateTime(DateTimeMapper.modelToMessage(now()));
+        left.setRoundHandler(null);
+        right.setRoundHandler(null);
         roundMediationManager.notifyRoundResult(getRound());
     }
 

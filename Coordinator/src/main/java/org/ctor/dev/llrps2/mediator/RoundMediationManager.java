@@ -30,7 +30,6 @@ public class RoundMediationManager implements MessageListener {
     }
 
     public void onMessage(Message message) {
-        LOG.info("received: round mediation request");
         if (!(message instanceof ObjectMessage)) {
             throw new IllegalArgumentException(
                     "Message must be of type ObjectMessage: "
@@ -39,6 +38,7 @@ public class RoundMediationManager implements MessageListener {
         try {
             final ObjectMessage obj = (ObjectMessage) message;
             final RoundMessage round = (RoundMessage) obj.getObject();
+            LOG.info("received: round mediation request: " + round);
             rounds.add(round);
             mediator.notifyRoundMediationRequest();
         } catch (JMSException e) {
@@ -50,7 +50,7 @@ public class RoundMediationManager implements MessageListener {
     void notifyRoundResult(RoundMessage round) {
         if (!rounds.contains(round)) {
             LOG.warn("unknown round message: " + round);
-            return;
+            throw new IllegalStateException();
         }
         if (!round.isCompleted()) {
             throw new IllegalStateException("round not finished");
@@ -58,7 +58,7 @@ public class RoundMediationManager implements MessageListener {
         jmsTemplate.convertAndSend(roundResultNotificationDestination, round);
         rounds.remove(round);
         mediator.notifyRoundMediationRequest();
-        LOG.info("sent: round result notification");
+        LOG.info("sent round result notification: " + round);
     }
 
     public void setMediator(Mediator sessionManager) {

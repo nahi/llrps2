@@ -94,8 +94,10 @@ public class SessionStub {
         try {
             channel.write(CHARSET.encode(writeBuffer.toString()));
         }
-        catch (ClosedChannelException cce) {
-            LOG.debug(cce.getMessage(), cce);
+        catch (IOException ioe) {
+            writeBuffer.setLength(0);
+            LOG.debug(ioe.getMessage(), ioe);
+            throw ioe;
         }
         writeBuffer.setLength(0);
     }
