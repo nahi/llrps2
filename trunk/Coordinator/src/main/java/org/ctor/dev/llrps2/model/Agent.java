@@ -21,19 +21,19 @@ public class Agent implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private final Long id = null;
 
-    @Column
-    private final Integer port;
-
-    @Column(length = 255, nullable = false)
+    @Column(length = 255, nullable = false, unique = true)
     private final String name;
-
-    @Column(nullable = false)
-    private final boolean active;
 
     // XXX should be unique
     // @Column(length = 63, nullable = false, unique = true)
     @Column(length = 63, nullable = false)
     private final String ipAddress;
+
+    @Column
+    private final Integer port;
+
+    @Column(nullable = false)
+    private final boolean active;
 
     public static Agent create(String name, String ipAddress, Integer port,
             boolean active) {

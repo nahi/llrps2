@@ -137,6 +137,13 @@
     <property name="agentDao" ref="agentDao" />
   </bean>
 
+  <bean id="contestManager" class="org.ctor.dev.llrps2.coordinator.ContestManager">
+    <property name="roundManager" ref="roundManager" />
+    <property name="agentManager" ref="agentManager" />
+    <property name="contestDao" ref="contestDao" />
+    <property name="agentDao" ref="agentDao" />
+  </bean>
+
   <bean id="roundManager" class="org.ctor.dev.llrps2.coordinator.RoundManager">
     <property name="roundConnector" ref="roundConnector" />
     <property name="roundDao" ref="roundDao" />
@@ -144,7 +151,6 @@
 
   <bean id="coordinator" class="org.ctor.dev.llrps2.coordinator.Coordinator">
     <property name="agentManager" ref="agentManager" />
-    <property name="roundManager" ref="roundManager" />
-    <property name="contestDao" ref="contestDao" />
+    <property name="contestManager" ref="contestManager" />
   </bean>
 </beans>
