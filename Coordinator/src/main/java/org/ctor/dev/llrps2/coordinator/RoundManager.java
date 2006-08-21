@@ -25,8 +25,12 @@ public class RoundManager {
 
     private RoundDao roundDao = null;
 
-    public void requestRoundMediation(Contest contest, String roundName,
-            Agent left, Agent right, RoundRule rule) {
+    private int roundCounter = 0;
+
+    public void requestRoundMediation(Contest contest, Agent left, Agent right,
+            RoundRule rule) {
+        final String roundName = String.format("%s_R%d", contest.getName(),
+                nextRoundCount());
         final Round round = Round.create(contest, roundName, left, right, rule);
         roundDao.save(round);
         roundDao.flush();
@@ -55,6 +59,10 @@ public class RoundManager {
         }
         round.count();
         roundDao.flush();
+    }
+
+    private int nextRoundCount() {
+        return ++roundCounter;
     }
 
     public void setRoundConnector(RoundConnector roundConnector) {

@@ -10,7 +10,7 @@ import org.ctor.dev.llrps2.model.Agent;
 import org.ctor.dev.llrps2.persistence.AgentDao;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
+@Transactional
 public class AgentManager {
     private static final Log LOG = LogFactory.getLog(AgentManager.class);
 
@@ -19,22 +19,35 @@ public class AgentManager {
     private AgentDao agentDao = null;
 
     public void showConnectedAgents(final List<AgentMessage> agents) {
-        System.out.println("= connected agents =");
+        LOG.info("= connected agents =");
         for (AgentMessage agent : agents) {
-            System.out.println(agent);
+            LOG.info(agent);
         }
+        LOG.info("====================");
     }
 
-    @Transactional(readOnly = false)
-    public Agent addActiveAgent(String agentName, String ipAddress) {
+    public Agent getOrCreateActiveAgent(String agentName, String ipAddress) {
+        final Agent found = agentDao.findByName(agentName);
+        if (found != null) {
+            LOG.info("agent already exists: " + agentName);
+            return found;
+        }
         final Agent agent = Agent.create(agentName, ipAddress, null, true);
         agentDao.save(agent);
+        LOG.info("created agent: " + agentName);
         return agent;
     }
 
-    public Agent addPassiveAgent(String agentName, String ipAddress, int port) {
+    public Agent getOrCreatePassiveAgent(String agentName, String ipAddress,
+            int port) {
+        final Agent found = agentDao.findByName(agentName);
+        if (found != null) {
+            LOG.info("agent already exists: " + agentName);
+            return found;
+        }
         final Agent agent = Agent.create(agentName, ipAddress, port, false);
         agentDao.save(agent);
+        LOG.info("created agent: " + agentName);
         return agent;
     }
 
