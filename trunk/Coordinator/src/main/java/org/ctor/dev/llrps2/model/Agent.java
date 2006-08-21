@@ -38,7 +38,6 @@ public class Agent implements Serializable {
     public static Agent create(String name, String ipAddress, Integer port,
             boolean active) {
         Validate.notNull(ipAddress);
-        Validate.isTrue(port >= 0);
         Validate.notNull(name);
         return new Agent(name, ipAddress, port, active);
     }

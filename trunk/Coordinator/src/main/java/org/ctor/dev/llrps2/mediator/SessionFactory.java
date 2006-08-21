@@ -10,14 +10,14 @@ public class SessionFactory {
 
     private ClientChannelFactory clientChannelFactory = null;
 
-    public SessionHandler create(EnrolledAgent agent, String coordinatorName,
-            String sessionId) throws RpsSessionException {
+    public SessionHandler create(EnrolledAgent agent, String sessionId)
+            throws RpsSessionException {
         final SocketChannel channel = createChannel(agent);
         if (channel == null) {
             return null;
         }
-        final SessionHandler handler = SessionHandler.create(coordinatorName,
-                channel, sessionId);
+        final SessionHandler handler = SessionHandler
+                .create(channel, sessionId);
         handler.connect();
         if (!agent.getAgent().isActive()) {
             handler.sendHello();
