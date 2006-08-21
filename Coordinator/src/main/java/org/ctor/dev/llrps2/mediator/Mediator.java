@@ -24,8 +24,6 @@ public class Mediator {
 
     private SessionFactory sessionFactory = null;
 
-    private String coordinatorName = "LLRPS2";
-
     private int connectionScanInterleaveMsec = 2000;
 
     private int maxConnectionsForPassiveAgent = 5;
@@ -54,9 +52,9 @@ public class Mediator {
                 LOG.debug(cbie.getMessage(), cbie);
                 break;
             } catch (IOException ie) {
-                LOG.warn(ie.getMessage(), ie);
+                LOG.info(ie.getMessage(), ie);
             } catch (RpsSessionException rse) {
-                LOG.warn(rse.getMessage(), rse);
+                LOG.info(rse.getMessage(), rse);
             }
         }
         LOG.info("mediator stopped");
@@ -68,6 +66,7 @@ public class Mediator {
 
     void notifyRoundMediationRequest() {
         scanRound();
+        agentEnrollmentManager.notifyConnectedAgents();
     }
 
     private void selectAndProcess() throws IOException, RpsSessionException {
@@ -116,7 +115,7 @@ public class Mediator {
             LOG.info("trying to create new connection for " + agent.getAgent());
             try {
                 final SessionHandler handler = sessionFactory.create(agent,
-                        coordinatorName, newSessionId());
+                        newSessionId());
                 if (handler == null) {
                     LOG.info("cannot create");
                 } else {
@@ -218,7 +217,7 @@ public class Mediator {
         sessionCounter += 1;
         return String.format("S_%d", sessionCounter);
     }
-    
+
     private void assignHandler(SocketChannel channel, SessionHandler handler) {
         handlerMap.put(channel, handler);
     }
@@ -255,14 +254,6 @@ public class Mediator {
 
     public SessionFactory getSessionFactory() {
         return sessionFactory;
-    }
-
-    public void setCoordinatorName(String coordinatorName) {
-        this.coordinatorName = coordinatorName;
-    }
-
-    public String getCoordinatorName() {
-        return coordinatorName;
     }
 
     public void setConnectionScanInterleaveMsec(int connectionScanInterleaveMsec) {
