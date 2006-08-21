@@ -34,38 +34,43 @@ public class Coordinator {
 
     public List<Agent> addAgents() {
         final List<Agent> ary = new ArrayList<Agent>();
-        ary.add(getAgentManager().addPassiveAgent("ruby server1", "127.0.0.1", 12347));
-        ary.add(getAgentManager().addPassiveAgent("ruby server2", "127.0.0.1", 12348));
-        ary.add(getAgentManager().addPassiveAgent("java server", "127.0.0.1", 12346));
+        ary.add(getAgentManager().addPassiveAgent("ruby server1", "127.0.0.1",
+                12347));
+        ary.add(getAgentManager().addPassiveAgent("ruby server2", "127.0.0.1",
+                12348));
+        ary.add(getAgentManager().addPassiveAgent("java server", "127.0.0.1",
+                12346));
+        ary.add(getAgentManager().addActiveAgent("awk client", "127.0.0.1"));
         return ary;
     }
 
     public void start() throws IOException {
+        final int rounds = 5;
         final RoundRule rule = RoundRule.create(50, GameRule.Normal);
-        int counter = 0;
         final List<Agent> agents = addAgents();
-        final Contest contest = Contest.create("c_1");
-        contestDao.save(contest);
-        contestDao.flush();
         while (true) {
-            System.out.println("agent request: send ?");
-            readLineFromConsole();
+            System.out.println("contest name ?");
+            final String contestName = readLineFromConsole();
+            final Contest contest = Contest.create(contestName);
             for (Agent agent : agents) {
                 agentManager.requestAgentEnrollment(agent);
             }
-            System.out.println("sent agent(s)");
+            contestDao.save(contest);
+            contestDao.flush();
+            System.out.println("agent request sent");
 
             System.out.println("round request: send ?");
             readLineFromConsole();
-            for (int idx = 0; idx < 5; ++idx) {
-                getRoundManager().requestRoundMediation(contest,
-                        "r_" + ++counter, agents.get(0), agents.get(1), rule);
-
-                getRoundManager().requestRoundMediation(contest,
-                        "r_" + ++counter, agents.get(1), agents.get(2), rule);
-
-                getRoundManager().requestRoundMediation(contest,
-                        "r_" + ++counter, agents.get(2), agents.get(0), rule);
+            int counter = 0;
+            for (int idx = 0; idx < rounds; ++idx) {
+                // all combination
+                for (int i = 0; i < agents.size(); ++i) {
+                    for (int j = i + 1; j < agents.size(); ++j) {
+                        getRoundManager().requestRoundMediation(contest,
+                                contestName + "_R" + ++counter, agents.get(i),
+                                agents.get(j), rule);
+                    }
+                }
             }
             System.out.println("sent round");
         }

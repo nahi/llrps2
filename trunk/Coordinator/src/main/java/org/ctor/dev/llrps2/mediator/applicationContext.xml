@@ -70,7 +70,6 @@
     <property name="agentEnrollmentManager" ref="agentEnrollmentManager" />
     <property name="roundMediationManager" ref="roundMediationManager" />
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="coordinatorName" value="${coordinator.name}" />
     <property name="connectionScanInterleaveMsec" value="${mediator.connectionScanInterleaveMsec}" />
     <property name="maxConnectionsForPassiveAgent" value="${mediator.maxConnectionsForPassiveAgent}" />
   </bean>
