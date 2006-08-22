@@ -38,8 +38,8 @@ public class RoundMessage implements Serializable {
         return new RoundMessage(roundId, rule, left, right);
     }
 
-    private RoundMessage(String roundId, RoundRule rule,
-            AgentMessage left, AgentMessage right) {
+    private RoundMessage(String roundId, RoundRule rule, AgentMessage left,
+            AgentMessage right) {
         this.roundId = roundId;
         this.rule = rule;
         this.left = left;

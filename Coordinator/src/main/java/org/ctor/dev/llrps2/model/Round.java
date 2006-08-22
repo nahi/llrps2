@@ -36,10 +36,10 @@ public class Round implements Serializable {
     @Column(length = 255, nullable = false, unique = true)
     private final String name;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false)
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REFRESH }, optional = false)
     private final RoundPlayer leftPlayer;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false)
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REFRESH }, optional = false)
     private final RoundPlayer rightPlayer;
 
     @Transient

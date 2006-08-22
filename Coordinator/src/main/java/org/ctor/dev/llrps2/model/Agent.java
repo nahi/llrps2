@@ -34,7 +34,7 @@ public class Agent implements Serializable {
 
     @Column(nullable = false)
     private final boolean active;
-
+    
     public static Agent create(String name, String ipAddress, Integer port,
             boolean active) {
         Validate.notNull(ipAddress);

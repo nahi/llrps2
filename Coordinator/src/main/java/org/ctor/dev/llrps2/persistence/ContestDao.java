@@ -9,5 +9,5 @@ import org.ctor.dev.llrps2.model.Round;
 public interface ContestDao extends BaseDao<Contest, Long> {
     Contest findByName(String name);
 
-    List<Round> findByMatchUp(Contest contest, Agent left, Agent right);
+    List<Round> findByMatchup(Contest contest, Agent left, Agent right);
 }

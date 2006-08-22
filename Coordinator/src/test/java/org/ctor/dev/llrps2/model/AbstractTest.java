@@ -46,6 +46,10 @@ public abstract class AbstractTest {
                 Contest.class).list()) {
             session.delete(contest);
         }
+        for (RoundPlayer roundPlayer : (List<RoundPlayer>) session
+                .createCriteria(RoundPlayer.class).list()) {
+            session.delete(roundPlayer);
+        }
         for (Agent agent : (List<Agent>) session.createCriteria(Agent.class)
                 .list()) {
             session.delete(agent);
