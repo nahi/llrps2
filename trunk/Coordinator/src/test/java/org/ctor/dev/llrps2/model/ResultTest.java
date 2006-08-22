@@ -135,8 +135,8 @@ public class ResultTest extends AbstractTest {
             for (int gameIdx = 0; gameIdx < gameCount; ++gameIdx) {
                 final Game game = Game.create(gameIdx + 1, round);
                 final MovePair pair = moveCallback.move(gameIdx + 1);
-                game.setLeftMove(pair.getLeft());
-                game.setRightMove(pair.getRight());
+                game.setLeftMove(pair.getFirst());
+                game.setRightMove(pair.getSecond());
             }
             round.setFinishDateTime(new GregorianCalendar());
             round.count();

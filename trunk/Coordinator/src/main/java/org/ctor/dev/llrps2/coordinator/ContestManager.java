@@ -1,10 +1,12 @@
 package org.ctor.dev.llrps2.coordinator;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.model.Agent;
+import org.ctor.dev.llrps2.model.AgentPair;
 import org.ctor.dev.llrps2.model.Contest;
 import org.ctor.dev.llrps2.model.Round;
 import org.ctor.dev.llrps2.model.RoundRule;
@@ -24,33 +26,58 @@ public class ContestManager {
 
     private AgentDao agentDao = null;
 
-    void openContest(String contestName, List<Agent> agents) {
+    public void openContest(String contestName, Agent[] agents) {
+        openContest(contestName, Arrays.asList(agents));
+    }
+
+    public void openContest(String contestName, List<Agent> agents) {
         final Contest contest = getOrCreateContest(contestName, agents);
         for (Agent contestant : contest.getContestants()) {
             getAgentManager().requestAgentEnrollment(contestant);
         }
     }
 
-    void startContest(String contestName, int rounds, RoundRule rule) {
+    public int startContest(String contestName, String startId, int rounds,
+            RoundRule rule) {
         final Contest contest = contestDao.findByName(contestName);
         if (contest == null) {
             throw new IllegalArgumentException("contest not found: "
                     + contestName);
         }
         final List<Agent> contestants = contest.getContestants();
+        int count = 0;
         for (int idx = 0; idx < rounds; ++idx) {
-            // all combination
             for (int i = 0; i < contestants.size(); ++i) {
                 for (int j = i + 1; j < contestants.size(); ++j) {
-                    final List<Round> matchups = contestDao.findByMatchUp(
-                            contest, contestants.get(i), contestants.get(j));
-                    System.out.println(matchups.size());
-                    if (matchups.size() < rounds) {
+                    final AgentPair pair = createMatchup(contestants.get(i),
+                            contestants.get(j));
+                    final Agent left = pair.getFirst();
+                    final Agent right = pair.getSecond();
+                    final List<Round> matchups = contestDao.findByMatchup(
+                            contest, left, right);
+                    if (matchups.size() >= rounds) {
+                        LOG
+                                .info(String
+                                        .format(
+                                                "no more round mediation needed for '%s' and '%s'",
+                                                left.getName(), right.getName()));
+                    } else {
                         getRoundManager().requestRoundMediation(contest,
-                                contestants.get(i), contestants.get(j), rule);
+                                startId, left, right, rule);
+                        count += 1;
                     }
                 }
             }
+        }
+        LOG.info(String.format("requested %d round mediations", count));
+        return count;
+    }
+
+    private AgentPair createMatchup(Agent left, Agent right) {
+        if (Math.random() > 0.5) {
+            return AgentPair.create(left, right);
+        } else {
+            return AgentPair.create(right, left);
         }
     }
 
@@ -58,6 +85,12 @@ public class ContestManager {
         final Contest found = contestDao.findByName(contestName);
         if (found != null) {
             LOG.info("contest already exists: " + contestName);
+            for (Agent agent : agents) {
+                if (!found.getContestants().contains(agent)) {
+                    LOG.info("added the new contestant: " + agent);
+                    found.getContestants().add(agent);
+                }
+            }
             return found;
         }
         LOG.info("creating contest: " + contestName);

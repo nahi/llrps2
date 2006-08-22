@@ -14,7 +14,7 @@ public final class MoveMapper {
         case Paper:
             return Move.Paper;
         case Rock:
-            return Move.NotAMove;
+            return Move.Rock;
         case Scissors:
             return Move.Scissors;
         default:

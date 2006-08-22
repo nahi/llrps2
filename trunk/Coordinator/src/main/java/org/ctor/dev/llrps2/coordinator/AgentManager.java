@@ -18,37 +18,50 @@ public class AgentManager {
 
     private AgentDao agentDao = null;
 
-    public void showConnectedAgents(final List<AgentMessage> agents) {
-        LOG.info("= connected agents =");
-        for (AgentMessage agent : agents) {
-            LOG.info(agent);
-        }
-        LOG.info("====================");
+    public Agent getAgent(String agentName) {
+        return agentDao.findByName(agentName);
     }
 
     public Agent getOrCreateActiveAgent(String agentName, String ipAddress) {
-        final Agent found = agentDao.findByName(agentName);
+        final Agent found = getAgent(agentName);
         if (found != null) {
-            LOG.info("agent already exists: " + agentName);
+            LOG.info("agent already exist (ignored ipAddress)");
             return found;
         }
+        return createActiveAgent(agentName, ipAddress);
+    }
+
+    public Agent getOrCreatePassiveAgent(String agentName, String ipAddress,
+            int port) {
+        final Agent found = getAgent(agentName);
+        if (found != null) {
+            LOG.info("agent already exist (ignored ipAddress and port)");
+            return found;
+        }
+        return createPassiveAgent(agentName, ipAddress, port);
+    }
+
+    public Agent createActiveAgent(String agentName, String ipAddress) {
         final Agent agent = Agent.create(agentName, ipAddress, null, true);
         agentDao.save(agent);
         LOG.info("created agent: " + agentName);
         return agent;
     }
 
-    public Agent getOrCreatePassiveAgent(String agentName, String ipAddress,
-            int port) {
-        final Agent found = agentDao.findByName(agentName);
-        if (found != null) {
-            LOG.info("agent already exists: " + agentName);
-            return found;
-        }
+    public Agent createPassiveAgent(String agentName, String ipAddress, int port) {
         final Agent agent = Agent.create(agentName, ipAddress, port, false);
         agentDao.save(agent);
         LOG.info("created agent: " + agentName);
         return agent;
+    }
+
+    public void showConnectedAgents(final List<AgentMessage> agents) {
+        LOG.info(String.format("+-- connected agents (%d) --------", agents
+                .size()));
+        for (AgentMessage agent : agents) {
+            LOG.info("| " + agent);
+        }
+        LOG.info("+---------------------------------------------------");
     }
 
     public void requestAgentEnrollment(Agent agent) {

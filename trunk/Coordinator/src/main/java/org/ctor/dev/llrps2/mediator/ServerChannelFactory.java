@@ -107,7 +107,9 @@ public class ServerChannelFactory implements Runnable {
                         sessionPool.put(ipAddress, pool);
                     }
                     pool.add(channel);
-                    LOG.info("accepted a new session: " + ipAddress);
+                    LOG.info(String.format(
+                            "accepted a new session for %s (%d sessions)",
+                            ipAddress, pool.size()));
                 }
             } else {
                 throw new IllegalStateException();
