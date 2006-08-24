@@ -125,7 +125,7 @@ public class ResultTest extends AbstractTest {
             final Agent left = agents.get(randomIndex(agents.size()));
             final Agent right = agents.get(randomIndex(agents.size()));
             //
-            final RoundRule rule = RoundRule.create(gameCount, gameRule);
+            final RoundRule rule = RoundRule.create(gameCount, null, gameRule);
             final String roundName = String.format("%s - %s #%d", left
                     .getIpAddress(), right.getIpAddress(), roundIdx + 1);
             final Round round = Round.create(contest, roundName, left, right,

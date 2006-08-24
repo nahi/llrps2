@@ -27,7 +27,8 @@ public class ContestTest extends AbstractTest {
             final Agent left = agents.get(randomIndex(agents.size()));
             final Agent right = agents.get(randomIndex(agents.size()));
             //
-            final RoundRule rule = RoundRule.create(gameCount, GameRule.Normal);
+            final RoundRule rule = RoundRule.create(gameCount, null,
+                    GameRule.Normal);
             final String roundName = String.format("%s - %s #%d", left
                     .getIpAddress(), right.getIpAddress(), roundIdx + 1);
             final Round round = Round.create(contest, roundName, left, right,

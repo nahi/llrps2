@@ -40,9 +40,19 @@ public class Coordinator {
      * contestManager.openContest("C1", [a1, a2])
      * 
      * contestManager.startContest("C1", 30, rule)
+     * 
+     * contestManager.openContest("C100", [testruby, testjava])
+     * 
+     * contestManager.startContest("C100", 10, rule)
+     * 
+     * contestManager.openContest("C20060823_2", [testruby, testjava, testgawk,
+     * testjava2])
+     * 
+     * contestManager.openContest("C20060824_4", [testruby, testjava, testgawk])
+     * contestManager.startContest("C20060824_4", 100, rule)
      */
     public void start() throws IOException {
-        final RoundRule rule = RoundRule.create(100, GameRule.Normal);
+        final RoundRule rule = RoundRule.create(100, 10000L, GameRule.Normal);
         final Context ctx = Context.enter();
         try {
             final Scriptable scope = ctx.initStandardObjects();
@@ -65,6 +75,15 @@ public class Coordinator {
                     .getOrCreateActiveAgent("gawk", "192.168.1.19"));
             ScriptableObject.putProperty(scope, "ruby", agentManager
                     .getOrCreatePassiveAgent("Ruby", "192.168.1.20", 12346));
+
+            ScriptableObject.putProperty(scope, "testjava", agentManager
+                    .getOrCreatePassiveAgent("testjava", "127.0.0.1", 12346));
+            ScriptableObject.putProperty(scope, "testruby", agentManager
+                    .getOrCreatePassiveAgent("testruby", "127.0.0.1", 12347));
+            ScriptableObject.putProperty(scope, "testgawk", agentManager
+                    .getOrCreateActiveAgent("testgawk", "127.0.0.1"));
+            ScriptableObject.putProperty(scope, "testjava2", agentManager
+                    .getOrCreateActiveAgent("testjava2", "192.168.1.131"));
 
             while (true) {
                 try {

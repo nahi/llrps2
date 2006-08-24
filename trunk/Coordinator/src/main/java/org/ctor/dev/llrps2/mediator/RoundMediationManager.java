@@ -56,9 +56,9 @@ public class RoundMediationManager implements MessageListener {
             throw new IllegalStateException("round not finished");
         }
         jmsTemplate.convertAndSend(roundResultNotificationDestination, round);
-        rounds.remove(round);
-        mediator.notifyRoundMediationRequest();
         LOG.info("sent round result notification: " + round);
+        rounds.remove(round);
+        mediator.scan();
     }
 
     public void setMediator(Mediator sessionManager) {

@@ -31,7 +31,6 @@
     <property name="jpaVendorAdapter">
       <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
         <property name="database" value="POSTGRESQL" />
-        <property name="showSql" value="true" />
       </bean>
     </property>
     <property name="loadTimeWeaver">

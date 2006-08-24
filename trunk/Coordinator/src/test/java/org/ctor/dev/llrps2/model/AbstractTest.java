@@ -1,5 +1,6 @@
 package org.ctor.dev.llrps2.model;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -44,11 +45,13 @@ public abstract class AbstractTest {
     protected void clean() {
         for (Contest contest : (List<Contest>) session.createCriteria(
                 Contest.class).list()) {
+            final Iterator<Round> ite = contest.getRounds().iterator();
+            while (ite.hasNext()) {
+                final Round round = ite.next();
+                ite.remove();
+                session.delete(round);
+            }
             session.delete(contest);
-        }
-        for (RoundPlayer roundPlayer : (List<RoundPlayer>) session
-                .createCriteria(RoundPlayer.class).list()) {
-            session.delete(roundPlayer);
         }
         for (Agent agent : (List<Agent>) session.createCriteria(Agent.class)
                 .list()) {

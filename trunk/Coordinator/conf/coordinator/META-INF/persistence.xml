@@ -10,7 +10,7 @@
     <class>org.ctor.dev.llrps2.model.RoundResult</class>
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
-      <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.show_sql" value="false" />
       <property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
       <property name="hibernate.connection.url" value="jdbc:postgresql://localhost/llrps2" />
       <property name="hibernate.connection.username" value="llrps2" />

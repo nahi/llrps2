@@ -1,6 +1,7 @@
 package org.ctor.dev.llrps2.coordinator;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -30,20 +31,30 @@ public class ContestManager {
         openContest(contestName, Arrays.asList(agents));
     }
 
+    @Transactional
     public void openContest(String contestName, List<Agent> agents) {
         final Contest contest = getOrCreateContest(contestName, agents);
+        // remove orphan rounds if exists
+        final Iterator<Round> ite = contest.getRounds().iterator();
+        while (ite.hasNext()) {
+            final Round round = ite.next();
+            if (round.getResult().getFinishDateTime() == null) {
+                ite.remove();
+                roundManager.removeRound(round);
+            }
+        }
         for (Agent contestant : contest.getContestants()) {
             getAgentManager().requestAgentEnrollment(contestant);
         }
     }
 
-    public int startContest(String contestName, String startId, int rounds,
-            RoundRule rule) {
+    public int startContest(String contestName, int rounds, RoundRule rule) {
         final Contest contest = contestDao.findByName(contestName);
         if (contest == null) {
             throw new IllegalArgumentException("contest not found: "
                     + contestName);
         }
+        contest.incrementMediationCount();
         final List<Agent> contestants = contest.getContestants();
         int count = 0;
         for (int idx = 0; idx < rounds; ++idx) {
@@ -56,14 +67,13 @@ public class ContestManager {
                     final List<Round> matchups = contestDao.findByMatchup(
                             contest, left, right);
                     if (matchups.size() >= rounds) {
-                        LOG
-                                .info(String
-                                        .format(
-                                                "no more round mediation needed for '%s' and '%s'",
-                                                left.getName(), right.getName()));
+                        LOG.info(String.format(
+                                "no more round mediation needed "
+                                        + "for '%s' and '%s'", left.getName(),
+                                right.getName()));
                     } else {
-                        getRoundManager().requestRoundMediation(contest,
-                                startId, left, right, rule);
+                        getRoundManager().requestRoundMediation(contest, left,
+                                right, rule);
                         count += 1;
                     }
                 }
@@ -90,6 +100,9 @@ public class ContestManager {
                     LOG.info("added the new contestant: " + agent);
                     found.getContestants().add(agent);
                 }
+            }
+            for (Agent contestant : found.getContestants()) {
+                LOG.info("contestant: " + contestant);
             }
             return found;
         }

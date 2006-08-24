@@ -61,19 +61,22 @@ public class Mediator {
     }
 
     void notifyAgentEnrollmentRequest() {
-        scanConnection();
+        //
     }
 
     void notifyRoundMediationRequest() {
+        //
+    }
+
+    void scan() {
+        scanConnection();
         scanRound();
-        agentEnrollmentManager.notifyConnectedAgents();
     }
 
     private void selectAndProcess() throws IOException, RpsSessionException {
         final int keys = selector.select(connectionScanInterleaveMsec);
         if (keys == 0) {
-            scanConnection();
-            scanRound();
+            scan(); // for initial scan;  keys won't be 0 after contest started
             return;
         }
         LOG.info(String.format("selected %d keys", keys));
@@ -103,14 +106,8 @@ public class Mediator {
         boolean added = false;
         for (EnrolledAgent agent : agentEnrollmentManager.getAgents()) {
             final int connections = agent.connections();
-            if (agent.getAgent().isActive()) {
-                if (connections > 0) {
-                    continue;
-                }
-            } else {
-                if (connections >= maxConnectionsForPassiveAgent) {
-                    continue;
-                }
+            if (connections >= maxConnectionsForPassiveAgent) {
+                continue;
             }
             LOG.info("trying to create new connection for " + agent.getAgent());
             try {
@@ -123,7 +120,7 @@ public class Mediator {
                     channel.configureBlocking(false);
                     channel.register(selector, SelectionKey.OP_READ);
                     assignHandler(channel, handler);
-                    agent.addSession(handler);
+                    agent.pushbackSession(handler);
                     added = true;
                 }
             } catch (RpsSessionException rse) {
@@ -164,25 +161,33 @@ public class Mediator {
                     + round.getRight());
         }
         final SessionHandler leftSession = pollSession(leftAgent);
+        final SessionHandler rightSession = pollSession(rightAgent);
         if (leftSession == null) {
             LOG.info("no valid connection found for left agent");
+            if (rightSession != null) {
+                rightAgent.pushbackSession(rightSession);
+            }
             return;
-        }
-        final SessionHandler rightSession = pollSession(rightAgent);
-        if (rightSession == null) {
+        } else if (rightSession == null) {
             LOG.info("no valid connection found for right agent");
+            if (leftSession != null) {
+                leftAgent.pushbackSession(leftSession);
+            }
             return;
         }
         if (!leftSession.isReadyForRoundStart()
                 || !rightSession.isReadyForRoundStart()) {
-            // push_back
-            leftAgent.addSession(leftSession);
-            rightAgent.addSession(rightSession);
-            if (!leftSession.isReadyForRoundStart()) {
+            if (leftSession.isReadyForRoundStart()) {
+                leftAgent.pushfrontSession(leftSession);
+            } else {
+                leftAgent.pushbackSession(leftSession);
                 LOG.info("leftSession not ready (state "
                         + leftSession.getState() + ")");
             }
-            if (!rightSession.isReadyForRoundStart()) {
+            if (rightSession.isReadyForRoundStart()) {
+                rightAgent.pushfrontSession(rightSession);
+            } else {
+                rightAgent.pushbackSession(rightSession);
                 LOG.info("rightSession not ready (state "
                         + rightSession.getState() + ")");
             }
@@ -193,12 +198,12 @@ public class Mediator {
                     rightSession);
             round.setAssigned(true);
             LOG.info("assigned a new round");
+            leftAgent.pushbackSession(leftSession);
+            rightAgent.pushbackSession(rightSession);
         } catch (RpsSessionException rse) {
             LOG.warn("RoundHandler create failed");
-        } finally {
-            // push_back
-            leftAgent.addSession(leftSession);
-            rightAgent.addSession(rightSession);
+            leftSession.close();
+            rightSession.close();
         }
     }
 

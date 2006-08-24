@@ -1,19 +1,21 @@
 package org.ctor.dev.llrps2.mediator;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.message.AgentMessage;
 
 public class EnrolledAgent {
+    private static final Log LOG = LogFactory.getLog(EnrolledAgent.class);
 
     private final AgentMessage agent;
 
-    private Queue<SessionHandler> sessionHandlers = new LinkedList<SessionHandler>();
+    private LinkedList<SessionHandler> sessionHandlers = new LinkedList<SessionHandler>();
 
     static EnrolledAgent create(AgentMessage agent) {
         Validate.notNull(agent);
@@ -31,9 +33,17 @@ public class EnrolledAgent {
     public int connections() {
         return sessionHandlers.size();
     }
+    
+    public void pushfrontSession(SessionHandler session) {
+        sessionHandlers.add(0, session);
+        LOG.info(String.format("pooling %d sessions for %s", sessionHandlers
+                .size(), agent.getName()));
+    }
 
-    public void addSession(SessionHandler session) {
+    public void pushbackSession(SessionHandler session) {
         sessionHandlers.add(session);
+        LOG.info(String.format("pooling %d sessions for %s", sessionHandlers
+                .size(), agent.getName()));
     }
 
     public SessionHandler pollSession() {
