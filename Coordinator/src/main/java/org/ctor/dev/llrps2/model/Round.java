@@ -36,17 +36,20 @@ public class Round implements Serializable {
     @Column(length = 255, nullable = false, unique = true)
     private final String name;
 
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REFRESH }, optional = false)
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
     private final RoundPlayer leftPlayer;
 
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REFRESH }, optional = false)
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
     private final RoundPlayer rightPlayer;
 
     @Transient
     private final RoundRule rule;
 
     @Column(nullable = false)
-    private final int scheduledGameCount;
+    private final Integer scheduledGameCount;
+
+    @Column
+    private final Long timeoutInMillis;
 
     @Column(nullable = false)
     private final GameRule gameRule;
@@ -86,10 +89,13 @@ public class Round implements Serializable {
         this.result = RoundResult.create(this);
 
         this.scheduledGameCount = (rule == null) ? 0 : rule.getGameCount();
+        this.timeoutInMillis = (rule == null) ? null : rule
+                .getTimeoutInMillis();
         this.gameRule = (rule == null) ? null : rule.getGameRule();
         this.games = new ArrayList<Game>();
         // just to avoid unreferenced private member warning.
         assert (this.scheduledGameCount == scheduledGameCount);
+        assert (this.timeoutInMillis == timeoutInMillis);
         assert (this.gameRule == gameRule);
     }
 

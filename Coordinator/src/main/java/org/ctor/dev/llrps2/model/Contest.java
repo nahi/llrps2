@@ -34,6 +34,9 @@ public class Contest implements Serializable {
 
     @Column(length = 255, nullable = false, unique = true)
     private final String name;
+    
+    @Column(nullable = false)
+    private int mediationCount = 0;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "Contestant", joinColumns = @JoinColumn(name = "contest_id"), inverseJoinColumns = @JoinColumn(name = "agent_id"), uniqueConstraints = { @UniqueConstraint(columnNames = {
@@ -69,6 +72,14 @@ public class Contest implements Serializable {
 
     public String getName() {
         return name;
+    }
+    
+    public void incrementMediationCount() {
+        mediationCount += 1;
+    }
+    
+    public int getMediationCount() {
+        return mediationCount;
     }
 
     public List<Agent> getContestants() {

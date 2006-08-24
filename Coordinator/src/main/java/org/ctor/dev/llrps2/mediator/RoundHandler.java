@@ -29,6 +29,8 @@ public class RoundHandler {
 
     private boolean rightReady = false;
 
+    private long startDateTime = 0;
+
     private int gameNumber = 0;
 
     static RoundHandler create(RoundMediationManager roundMediationManager,
@@ -59,11 +61,17 @@ public class RoundHandler {
                 .getRule().getGameRule());
         getRound().getLeft().setCname(left.getAgentName());
         getRound().getRight().setCname(right.getAgentName());
-        getRound().setStartDateTime(DateTimeMapper.modelToMessage(now()));
+        setStartDateTime();
         left.setRoundHandler(this);
         right.setRoundHandler(this);
-        left.sendRoundReady(roundId, iteration, ruleId);
-        right.sendRoundReady(roundId, iteration, ruleId);
+        try {
+            left.sendRoundReady(roundId, iteration, ruleId);
+            right.sendRoundReady(roundId, iteration, ruleId);
+        } catch (RpsSessionException rse) {
+            left.setRoundHandler(null);
+            right.setRoundHandler(null);
+            throw rse;
+        }
     }
 
     void notifyGameReady(SessionHandler session) throws RpsSessionException {
@@ -100,22 +108,10 @@ public class RoundHandler {
                 if (game.getRightMove() == null) {
                     game.setRightMove(Move.NotAMove);
                 }
-                try {
-                    getRight().recover();
-                } catch (RpsSessionException rse) {
-                    LOG.info(rse.getMessage(), rse);
-                    game.setRightMove(Move.Surrender);
-                }
             } else {
                 game.setRightMove(Move.Surrender);
                 if (game.getLeftMove() == null) {
                     game.setLeftMove(Move.NotAMove);
-                }
-                try {
-                    getLeft().recover();
-                } catch (RpsSessionException rse) {
-                    LOG.info(rse.getMessage(), rse);
-                    game.setLeftMove(Move.Surrender);
                 }
             }
         }
@@ -131,7 +127,7 @@ public class RoundHandler {
             }
         }
         notifyRoundResult();
-        // close opposite side, too.  XXX Too difficult for recovery...
+        // close opposite side, too. XXX Too difficult for recovery...
         if (isLeft) {
             getRight().close();
         } else {
@@ -144,11 +140,21 @@ public class RoundHandler {
         final GameMessage game = getRound().getGames().get(gameNumber - 1);
         left.sendResultUpdate(MoveMapper.modelToSession(game.getRightMove()));
         right.sendResultUpdate(MoveMapper.modelToSession(game.getLeftMove()));
-        if (gameNumber >= getIteration()) {
+        if (expired()) {
+            LOG.info("round time limit exceeded (dropped the last game)");
+            getRound().getGames().remove(getRound().getGames().size() - 1);
+            completeRound();
+        } else if (gameNumber >= getIteration()) {
             completeRound();
         } else {
             newGame();
         }
+    }
+
+    private boolean expired() {
+        final Long timeoutInMillis = round.getRule().getTimeoutInMillis();
+        return (timeoutInMillis != null && (startDateTime + timeoutInMillis < now()
+                .getTimeInMillis()));
     }
 
     private void newGame() throws RpsSessionException {
@@ -160,14 +166,25 @@ public class RoundHandler {
     }
 
     private void completeRound() throws RpsSessionException {
-        getRound().setFinishDateTime(DateTimeMapper.modelToMessage(now()));
+        setFinishDateTime();
         left.sendMatch();
         right.sendMatch();
         notifyRoundResult();
     }
 
+    private void setStartDateTime() {
+        final GregorianCalendar now = now();
+        this.startDateTime = now.getTimeInMillis();
+        getRound().setStartDateTime(DateTimeMapper.modelToMessage(now));
+    }
+
+    private void setFinishDateTime() {
+        final GregorianCalendar now = now();
+        getRound().setFinishDateTime(DateTimeMapper.modelToMessage(now));
+    }
+
     private void notifyRoundResult() {
-        getRound().setFinishDateTime(DateTimeMapper.modelToMessage(now()));
+        setFinishDateTime();
         left.setRoundHandler(null);
         right.setRoundHandler(null);
         roundMediationManager.notifyRoundResult(getRound());

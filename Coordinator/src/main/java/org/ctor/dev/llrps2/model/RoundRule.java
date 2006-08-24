@@ -7,22 +7,31 @@ import org.apache.commons.lang.Validate;
 public class RoundRule implements Serializable {
     private static final long serialVersionUID = 1;
 
-    private final int gameCount;
+    private final Integer gameCount;
+
+    private final Long timeoutInMillis;
 
     private final GameRule gameRule;
 
-    public static RoundRule create(int gameCount, GameRule gameRule) {
-        Validate.isTrue(gameCount >= 0, "gameCount must be >= 0");
-        return new RoundRule(gameCount, gameRule);
+    public static RoundRule create(Integer gameCount, Long timeoutInMillis,
+            GameRule gameRule) {
+        Validate.isTrue(gameCount >= 0);
+        Validate.isTrue(timeoutInMillis >= 0);
+        return new RoundRule(gameCount, timeoutInMillis, gameRule);
     }
 
-    private RoundRule(int gameCount, GameRule gameRule) {
+    private RoundRule(Integer gameCount, Long timeoutInMillis, GameRule gameRule) {
         this.gameCount = gameCount;
+        this.timeoutInMillis = timeoutInMillis;
         this.gameRule = gameRule;
     }
 
-    public int getGameCount() {
+    public Integer getGameCount() {
         return gameCount;
+    }
+
+    public Long getTimeoutInMillis() {
+        return timeoutInMillis;
     }
 
     public GameRule getGameRule() {

@@ -27,10 +27,10 @@ public class RoundManager {
 
     private int roundCounter = 0;
 
-    public void requestRoundMediation(Contest contest, String startId,
-            Agent left, Agent right, RoundRule rule) {
+    public void requestRoundMediation(Contest contest, Agent left, Agent right,
+            RoundRule rule) {
         final String roundName = String.format("%s_%s_R%d", contest.getName(),
-                startId, nextRoundCount());
+                contest.getMediationCount(), nextRoundCount());
 
         final Round round = Round.create(contest, roundName, left, right, rule);
         roundDao.save(round);
@@ -59,6 +59,12 @@ public class RoundManager {
             games.add(game);
         }
         round.count();
+        roundDao.flush();
+    }
+
+    public void removeRound(Round round) {
+        LOG.info("removed round: " + round);
+        roundDao.remove(round);
         roundDao.flush();
     }
 
