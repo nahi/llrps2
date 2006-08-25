@@ -52,20 +52,24 @@ public class Coordinator {
      * 
      * contestManager.startContest("C20060825_1", 10, rule)
      * 
-     * contestManager.openContest("C20060825_10", [testjava3, testruby,
-     * justRock, rotate, copy, copy2])
+     * contestManager.openContest("C20060825_14", [testgawk, testruby, justRock,
+     * rotate, copy, copy2])
      * 
-     * contestManager.startContest("C20060825_10", 10, rule)
+     * contestManager.startContest(2, rule)
      */
     public void start() throws IOException {
-        final RoundRule rule = RoundRule.create(100, 60000L, GameRule.Normal);
+        final RoundRule rule100 = RoundRule
+                .create(100, 60000L, GameRule.Normal);
+        final RoundRule rule50 = RoundRule.create(50, 60000L, GameRule.Normal);
         final Context ctx = Context.enter();
         try {
             final Scriptable scope = ctx.initStandardObjects();
             ScriptableObject.putProperty(scope, "out", Context.javaToJS(
                     System.out, scope));
-            ScriptableObject.putProperty(scope, "rule", Context.javaToJS(rule,
-                    scope));
+            ScriptableObject.putProperty(scope, "rule100", Context.javaToJS(
+                    rule100, scope));
+            ScriptableObject.putProperty(scope, "rule50", Context.javaToJS(
+                    rule50, scope));
             ScriptableObject.putProperty(scope, "agentManager", Context
                     .javaToJS(agentManager, scope));
             ScriptableObject.putProperty(scope, "contestManager", Context

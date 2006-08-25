@@ -26,12 +26,19 @@ public class ContestManager {
 
     private AgentDao agentDao = null;
 
-    public void openContest(String contestName, Agent[] agents) {
-        openContest(contestName, Arrays.asList(agents));
+    private String contestName = null;
+
+    public void openContest(String newContestName, Agent[] agents) {
+        openContest(newContestName, Arrays.asList(agents));
     }
 
-    public void openContest(String contestName, List<Agent> agents) {
-        final Contest contest = getOrCreateContest(contestName, agents);
+    public void openContest(String newContestName, List<Agent> agents) {
+        if (contestName != null) {
+            throw new IllegalStateException("close existing contest first: "
+                    + contestName);
+        }
+        this.contestName = newContestName;
+        final Contest contest = getOrCreateContest(newContestName, agents);
         // remove orphan rounds if exists
         final Iterator<Round> ite = contest.getRounds().iterator();
         while (ite.hasNext()) {
@@ -47,14 +54,24 @@ public class ContestManager {
         }
     }
 
-    public void startContest(String contestName, int rounds, RoundRule rule) {
+    public void startContest(int rounds, RoundRule rule) {
         getRoundManager().requestRoundMediations(contestName, rounds, rule);
     }
 
-    private Contest getOrCreateContest(String contestName, List<Agent> agents) {
-        final Contest found = contestDao.findByName(contestName);
+    public void closeContest() {
+        final Contest contest = contestDao.findByName(contestName);
+        if (contest == null) {
+            throw new IllegalStateException("contest not found: " + contestName);
+        }
+        contest.finish();
+        roundManager.requestCloseRoundMediation(contestName);
+        this.contestName = null;
+    }
+
+    private Contest getOrCreateContest(String newContestName, List<Agent> agents) {
+        final Contest found = contestDao.findByName(newContestName);
         if (found != null) {
-            LOG.info("contest already exists: " + contestName);
+            LOG.info("contest already exists: " + newContestName);
             for (Agent agent : agents) {
                 if (!found.getContestants().contains(agent)) {
                     LOG.info("added the new contestant: " + agent);
@@ -66,8 +83,8 @@ public class ContestManager {
             }
             return found;
         }
-        LOG.info("creating contest: " + contestName);
-        final Contest contest = Contest.create(contestName);
+        LOG.info("creating contest: " + newContestName);
+        final Contest contest = Contest.create(newContestName);
         for (Agent agent : agents) {
             final Agent contestant = agentDao.findByName(agent.getName());
             if (contestant == null) {
