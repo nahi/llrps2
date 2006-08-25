@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.message.CloseMessage;
 import org.ctor.dev.llrps2.message.RoundMessage;
 import org.ctor.dev.llrps2.model.DateTimeMapper;
 import org.ctor.dev.llrps2.session.RpsSessionException;
@@ -35,6 +36,8 @@ public class Mediator {
     private int sessionCounter = 0;
 
     private boolean scanNext = false;
+    
+    private boolean closeNext = false;
 
     private Map<SocketChannel, SocketSessionHandler> handlerMap = new HashMap<SocketChannel, SocketSessionHandler>();
 
@@ -71,6 +74,10 @@ public class Mediator {
     void notifyRoundMediationRequest() {
         //
     }
+    
+    void notifyCloseRequest(CloseMessage message) {
+        closeNext = true;
+    }
 
     void notifyScan() {
         scanNext = true;
@@ -79,7 +86,11 @@ public class Mediator {
     private void selectAndProcess() throws IOException, RpsSessionException {
         final int keys = selector.select(connectionScanInterleaveMsec);
         if (keys == 0) {
-            scan(); // for initial scan; keys won't be 0 after contest started
+            scan();
+            if (closeNext) {
+                close();
+                closeNext = false;
+            }
             return;
         }
         LOG.info(String.format("selected %d keys", keys));
@@ -104,11 +115,23 @@ public class Mediator {
             scan();
             scanNext = false;
         }
+        if (closeNext) {
+            close();
+            closeNext = false;
+        }
     }
 
     private void scan() {
         scanConnection();
         scanRound();
+    }
+    
+    private void close() {
+        LOG.info("close all sessions");
+        for (SessionHandler handler : handlerMap.values()) {
+            handler.close();
+        }
+        handlerMap.clear();
     }
 
     private void scanConnection() {

@@ -26,6 +26,8 @@ public class RoundManager {
 
     private RoundConnector roundConnector = null;
 
+    private ContestManager contestManager = null;
+    
     private ContestDao contestDao = null;
 
     private RoundDao roundDao = null;
@@ -100,6 +102,10 @@ public class RoundManager {
         roundDao.flush();
     }
 
+    void requestCloseRoundMediation(String message) {
+        roundConnector.requestCloseRoundMediation(message);
+    }
+
     void notifyRoundMediationStatus(RoundMediationStatusMessage status) {
         LOG.info("+-- round status --+");
         LOG
@@ -108,6 +114,9 @@ public class RoundManager {
         LOG.info(String
                 .format("| done:     %06d |", status.getMediatedRounds()));
         LOG.info("+------------------+");
+        if (status.getWaitingRounds() == 0) {
+            contestManager.closeContest();
+        }
     }
 
     private void requestRoundMediation(Contest contest, Agent left,
@@ -141,6 +150,14 @@ public class RoundManager {
 
     public RoundConnector getRoundConnector() {
         return roundConnector;
+    }
+
+    public void setContestManager(ContestManager contestManager) {
+        this.contestManager = contestManager;
+    }
+
+    public ContestManager getContestManager() {
+        return contestManager;
     }
 
     public void setContestDao(ContestDao contestDao) {

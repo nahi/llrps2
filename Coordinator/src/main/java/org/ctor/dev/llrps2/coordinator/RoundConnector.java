@@ -7,6 +7,7 @@ import javax.jms.ObjectMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.message.CloseMessage;
 import org.ctor.dev.llrps2.message.RoundMediationStatusMessage;
 import org.ctor.dev.llrps2.message.RoundMessage;
 import org.ctor.dev.llrps2.message.StartMessage;
@@ -58,6 +59,14 @@ public class RoundConnector implements MessageListener {
         jmsTemplate.convertAndSend(roundMediationRequestDestination,
                 startMessage);
         LOG.info("sent: start round mediation request");
+    }
+
+    void requestCloseRoundMediation(String message) {
+        final CloseMessage startMessage = CloseMessage
+                .create("close round mediation for " + message);
+        jmsTemplate.convertAndSend(roundMediationRequestDestination,
+                startMessage);
+        LOG.info("sent: close round mediation request");
     }
 
     public void setRoundMediationRequestDestination(

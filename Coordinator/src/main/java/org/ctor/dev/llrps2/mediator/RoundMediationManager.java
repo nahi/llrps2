@@ -12,6 +12,7 @@ import javax.jms.ObjectMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.message.CloseMessage;
 import org.ctor.dev.llrps2.message.RoundMediationStatusMessage;
 import org.ctor.dev.llrps2.message.RoundMessage;
 import org.ctor.dev.llrps2.message.StartMessage;
@@ -59,6 +60,10 @@ public class RoundMediationManager implements MessageListener {
                 Collections.shuffle(rounds);
                 LOG.info("received start message: " + start.getMessage());
                 started = true;
+            } else if (obj instanceof CloseMessage) {
+                final CloseMessage close = (CloseMessage) obj;
+                mediator.notifyCloseRequest(close);
+                LOG.info("received close message: " + close.getMessage());
             }
         } catch (JMSException e) {
             LOG.warn(e.getMessage(), e);

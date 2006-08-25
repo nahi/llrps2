@@ -208,6 +208,7 @@ public class SocketSessionHandler extends SessionHandler {
     synchronized void close() {
         LOG.info(String.format("[%s - %s] closing session", sessionId,
                 getAgentName()));
+        gracefulClose();
         try {
             stub.close();
         } catch (IOException ioe) {
@@ -215,6 +216,37 @@ public class SocketSessionHandler extends SessionHandler {
         }
         if (getRoundHandler() != null) {
             getRoundHandler().notifySurrender(this);
+        }
+    }
+
+    private void gracefulClose() {
+        LOG.info(String.format("[%s - %s] graceful close from %s", sessionId,
+                getAgentName(), state.getState()));
+        switch (state.getState()) {
+        case INITIATED:
+        case MATCH:
+            try {
+                sendClose();
+            } catch (RpsSessionException rse) {
+                LOG.warn(rse.getMessage(), rse);
+            }
+            break;
+        case START:
+        case ESTABLISHED:
+        case A_HELLO:
+        case C_HELLO:
+        case C_INITIATION:
+        case C_ROUND_READY:
+        case ROUND_READY:
+        case CALL:
+        case MOVE:
+        case RESULT_UPDATED:
+        case C_CLOSE:
+        case END:
+            break;
+        default:
+            throw new IllegalArgumentException("unknown state "
+                    + state.getState());
         }
     }
 

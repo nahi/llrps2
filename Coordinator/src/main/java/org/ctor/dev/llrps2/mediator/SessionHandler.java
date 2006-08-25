@@ -69,7 +69,7 @@ public abstract class SessionHandler {
     abstract void close();
 
     public void recover() throws RpsSessionException {
-        LOG.info(String.format("%s - %s: recovery from %s", sessionId,
+        LOG.info(String.format("[%s - %s] recovery from %s", sessionId,
                 getAgentName(), state.getState()));
         switch (state.getState()) {
         case START:

@@ -5,15 +5,15 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class StartMessage extends StringMessage {
+public class CloseMessage extends StringMessage {
     private static final long serialVersionUID = 1;
 
-    public static StartMessage create(String message) {
+    public static CloseMessage create(String message) {
         Validate.notNull(message);
-        return new StartMessage(message);
+        return new CloseMessage(message);
     }
 
-    private StartMessage(String message) {
+    private CloseMessage(String message) {
         super(message);
     }
 
@@ -22,10 +22,10 @@ public class StartMessage extends StringMessage {
         if (other == this) {
             return true;
         }
-        if (!(other instanceof StartMessage)) {
+        if (!(other instanceof CloseMessage)) {
             return false;
         }
-        final StartMessage rhs = (StartMessage) other;
+        final CloseMessage rhs = (CloseMessage) other;
         return new EqualsBuilder().appendSuper(super.equals(rhs)).isEquals();
     }
 
