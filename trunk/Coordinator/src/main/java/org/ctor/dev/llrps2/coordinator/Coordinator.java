@@ -52,9 +52,10 @@ public class Coordinator {
      * 
      * contestManager.startContest("C20060825_1", 10, rule)
      * 
-     * contestManager.openContest("C20060825_9", [testjava, testgawk, testruby, justRock, rotate, copy, copy2])
+     * contestManager.openContest("C20060825_10", [testjava3, testruby,
+     * justRock, rotate, copy, copy2])
      * 
-     * contestManager.startContest("C20060825_9", 10, rule)
+     * contestManager.startContest("C20060825_10", 10, rule)
      */
     public void start() throws IOException {
         final RoundRule rule = RoundRule.create(100, 60000L, GameRule.Normal);
@@ -89,6 +90,8 @@ public class Coordinator {
                     .getOrCreateActiveAgent("testgawk", "127.0.0.1"));
             ScriptableObject.putProperty(scope, "testjava2", agentManager
                     .getOrCreateActiveAgent("testjava2", "192.168.1.131"));
+            ScriptableObject.putProperty(scope, "testjava3", agentManager
+                    .getOrCreateActiveAgent("testjava3", "127.0.0.1"));
 
             ScriptableObject.putProperty(scope, "justRock", agentManager
                     .getOrCreateDecoyAgent("JustRock", 0));

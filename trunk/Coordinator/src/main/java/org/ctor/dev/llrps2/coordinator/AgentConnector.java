@@ -18,7 +18,7 @@ public class AgentConnector implements MessageListener {
     private final JmsTemplate jmsTemplate;
 
     private AgentManager agentManager = null;
-    
+
     private String agentEnrollmentRequestDestination = null;
 
     AgentConnector(JmsTemplate jmsTemplate) {
@@ -36,7 +36,7 @@ public class AgentConnector implements MessageListener {
             final ObjectMessage obj = (ObjectMessage) message;
             final List<AgentMessage> agents = (List<AgentMessage>) obj
                     .getObject();
-            getAgentManager().showConnectedAgents(agents);
+            getAgentManager().notifyConnectedAgents(agents);
         } catch (JMSException e) {
             LOG.warn(e.getMessage(), e);
             throw new RuntimeException(e);

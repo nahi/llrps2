@@ -17,7 +17,8 @@ import org.ctor.dev.llrps2.session.RpsState;
 import org.ctor.dev.llrps2.session.SessionStub;
 
 public class SocketSessionHandler extends SessionHandler {
-    private static final Log LOG = LogFactory.getLog(SocketSessionHandler.class);
+    private static final Log LOG = LogFactory
+            .getLog(SocketSessionHandler.class);
 
     private final SessionStub stub;
 

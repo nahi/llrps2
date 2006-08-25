@@ -33,7 +33,7 @@ public class Mediator {
     private Selector selector = null;
 
     private int sessionCounter = 0;
-    
+
     private boolean scanNext = false;
 
     private Map<SocketChannel, SocketSessionHandler> handlerMap = new HashMap<SocketChannel, SocketSessionHandler>();
@@ -71,7 +71,7 @@ public class Mediator {
     void notifyRoundMediationRequest() {
         //
     }
-    
+
     void notifyScan() {
         scanNext = true;
     }
@@ -121,7 +121,9 @@ public class Mediator {
             if (connections >= maxConnectionsForAgent) {
                 continue;
             }
-            LOG.debug("trying to create new connection for " + agent.getAgent());
+            LOG
+                    .debug("trying to create new connection for "
+                            + agent.getAgent());
             try {
                 final SessionHandler handler = sessionFactory.create(agent,
                         newSessionId());

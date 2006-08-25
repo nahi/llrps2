@@ -12,7 +12,8 @@ import org.ctor.dev.llrps2.session.Rps;
 import org.ctor.dev.llrps2.session.RpsSessionException;
 
 public class MediationRoundHandler extends RoundHandler {
-    private static final Log LOG = LogFactory.getLog(MediationRoundHandler.class);
+    private static final Log LOG = LogFactory
+            .getLog(MediationRoundHandler.class);
 
     private final SessionHandler left;
 

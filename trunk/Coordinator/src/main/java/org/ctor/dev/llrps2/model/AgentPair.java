@@ -8,7 +8,7 @@ public class AgentPair extends Pair<Agent> {
         Validate.notNull(right);
         return new AgentPair(left, right);
     }
-    
+
     private AgentPair(Agent left, Agent right) {
         super(left, right);
     }

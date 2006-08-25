@@ -8,7 +8,7 @@ public class AgentDaoJpaImpl extends BaseDaoJpaImpl<Agent, Long> implements
     public AgentDaoJpaImpl() {
         super(Agent.class);
     }
-    
+
     public Agent findByName(String name) {
         return singleObject(getJpaTemplate().find(
                 "select o from Agent o where o.name = ?1", name));

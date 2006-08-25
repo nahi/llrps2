@@ -130,7 +130,7 @@ public abstract class SessionHandler {
     abstract boolean isConnected();
 
     abstract SocketChannel getChannel();
-    
+
     public RpsState getState() {
         return state.getState();
     }

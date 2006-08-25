@@ -40,7 +40,7 @@ public class AgentManager {
         }
         return createPassiveAgent(agentName, ipAddress, port);
     }
-    
+
     public Agent getOrCreateDecoyAgent(String agentName, int decoyType) {
         final Agent found = getAgent(agentName);
         if (found != null) {
@@ -63,7 +63,7 @@ public class AgentManager {
         LOG.info("created agent: " + agentName);
         return agent;
     }
-    
+
     public Agent createDecoyAgent(String agentName, int decoyType) {
         final Agent agent = Agent.createDecoy(agentName, decoyType);
         agentDao.save(agent);
@@ -71,7 +71,7 @@ public class AgentManager {
         return agent;
     }
 
-    public void showConnectedAgents(final List<AgentMessage> agents) {
+    public void notifyConnectedAgents(final List<AgentMessage> agents) {
         LOG.info(String.format("+-- connected agents (%d) --------", agents
                 .size()));
         for (AgentMessage agent : agents) {

@@ -31,11 +31,11 @@ public class RpsStateTransition {
     public RpsStateTransition(String identifier) {
         this.identifier = identifier;
     }
-    
+
     public RpsState getState() {
         return state;
     }
-    
+
     public void transition(RpsState to)
             throws IllegalRpsStateTransitionException {
         final Set<RpsState> candidate = map.get(state);
