@@ -17,7 +17,7 @@ public class AgentMessage implements Serializable {
     private final Integer port;
 
     private final boolean active;
-    
+
     private final Integer decoyType;
 
     private String cname = null;
@@ -62,7 +62,7 @@ public class AgentMessage implements Serializable {
     public Integer getDecoyType() {
         return decoyType;
     }
-    
+
     public boolean isDecoy() {
         return decoyType != null;
     }

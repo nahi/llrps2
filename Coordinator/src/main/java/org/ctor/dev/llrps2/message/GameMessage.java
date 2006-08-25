@@ -23,7 +23,7 @@ public class GameMessage implements Serializable {
     private GameMessage(int gameNumber) {
         this.gameNumber = gameNumber;
     }
-    
+
     public boolean isCompleted() {
         return leftMove != null && rightMove != null;
     }

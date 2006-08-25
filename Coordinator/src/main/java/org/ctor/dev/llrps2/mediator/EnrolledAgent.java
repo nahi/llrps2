@@ -33,7 +33,7 @@ public class EnrolledAgent {
     public int connections() {
         return sessionHandlers.size();
     }
-    
+
     public void pushfrontSession(SessionHandler session) {
         sessionHandlers.add(0, session);
         LOG.info(String.format("pooling %d sessions for %s", sessionHandlers

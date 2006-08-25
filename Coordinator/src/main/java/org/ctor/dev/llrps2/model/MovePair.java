@@ -8,7 +8,7 @@ public class MovePair extends Pair<Move> {
         Validate.notNull(right);
         return new MovePair(left, right);
     }
-    
+
     private MovePair(Move left, Move right) {
         super(left, right);
     }

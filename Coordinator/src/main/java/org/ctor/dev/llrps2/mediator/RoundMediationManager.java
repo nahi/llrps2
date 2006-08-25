@@ -12,6 +12,7 @@ import javax.jms.ObjectMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.message.RoundMediationStatusMessage;
 import org.ctor.dev.llrps2.message.RoundMessage;
 import org.ctor.dev.llrps2.message.StartMessage;
 import org.springframework.jms.core.JmsTemplate;
@@ -32,6 +33,9 @@ public class RoundMediationManager implements MessageListener {
 
     private final List<RoundMessage> rounds = new CopyOnWriteArrayList<RoundMessage>();
 
+    private final RoundMediationStatusMessage status = RoundMediationStatusMessage
+            .create();
+
     RoundMediationManager(JmsTemplate jmsTemplate) {
         this.jmsTemplate = jmsTemplate;
     }
@@ -48,6 +52,7 @@ public class RoundMediationManager implements MessageListener {
                 final RoundMessage round = (RoundMessage) obj;
                 LOG.info("received: round mediation request: " + round);
                 rounds.add(round);
+                status.setWaitingRounds(rounds.size());
                 mediator.notifyRoundMediationRequest();
             } else if (obj instanceof StartMessage) {
                 final StartMessage start = (StartMessage) obj;
@@ -73,7 +78,15 @@ public class RoundMediationManager implements MessageListener {
         LOG.info("sent round result notification: " + round);
         rounds.remove(round);
         LOG.info(String.format("%d rounds left", rounds.size()));
+        status.incrementMediatedRounds();
+        status.setWaitingRounds(rounds.size());
         mediator.notifyScan();
+        notifyRoundMediationStatus();
+    }
+
+    void notifyRoundMediationStatus() {
+        jmsTemplate.convertAndSend(roundResultNotificationDestination, status);
+        LOG.info("sent round mediation status: " + status);
     }
 
     public void setMediator(Mediator sessionManager) {

@@ -7,6 +7,7 @@ import javax.jms.ObjectMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ctor.dev.llrps2.message.RoundMediationStatusMessage;
 import org.ctor.dev.llrps2.message.RoundMessage;
 import org.ctor.dev.llrps2.message.StartMessage;
 import org.springframework.jms.core.JmsTemplate;
@@ -25,16 +26,21 @@ public class RoundConnector implements MessageListener {
     }
 
     public void onMessage(Message message) {
-        LOG.info("received: round result notification message");
+        LOG.debug("received: round result notification message");
         if (!(message instanceof ObjectMessage)) {
             throw new IllegalArgumentException(
                     "Message must be of type ObjectMessage: "
                             + message.getClass());
         }
         try {
-            final ObjectMessage obj = (ObjectMessage) message;
-            final RoundMessage roundMessage = (RoundMessage) obj.getObject();
-            getRoundManager().persistRound(roundMessage);
+            final Object obj = ((ObjectMessage) message).getObject();
+            if (obj instanceof RoundMessage) {
+                final RoundMessage round = (RoundMessage) obj;
+                getRoundManager().persistRound(round);
+            } else if (obj instanceof RoundMediationStatusMessage) {
+                final RoundMediationStatusMessage status = (RoundMediationStatusMessage) obj;
+                getRoundManager().notifyRoundMediationStatus(status);
+            }
         } catch (JMSException e) {
             LOG.warn(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -43,7 +49,7 @@ public class RoundConnector implements MessageListener {
 
     void requestRoundMediation(RoundMessage message) {
         jmsTemplate.convertAndSend(roundMediationRequestDestination, message);
-        LOG.info("sent: round mediation request");
+        LOG.debug("sent: round mediation request");
     }
 
     void requestStartRoundMediation(String message) {

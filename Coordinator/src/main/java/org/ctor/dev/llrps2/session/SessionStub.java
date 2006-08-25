@@ -72,14 +72,12 @@ public class SessionStub {
                 close();
                 LOG.info("reached end of stream");
                 throw new IOException("reached end of stream");
-            }
-            else {
+            } else {
                 buffer.flip();
                 readBuffer.append(CHARSET.decode(buffer));
             }
             return readSize;
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             close();
             LOG.info(ioe.getMessage(), ioe);
             throw ioe;
@@ -93,8 +91,7 @@ public class SessionStub {
         }
         try {
             channel.write(CHARSET.encode(writeBuffer.toString()));
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             writeBuffer.setLength(0);
             LOG.debug(ioe.getMessage(), ioe);
             throw ioe;
@@ -106,12 +103,11 @@ public class SessionStub {
         LOG.info("closing channel");
         try {
             channel.close();
-        }
-        catch (ClosedChannelException cce) {
+        } catch (ClosedChannelException cce) {
             LOG.debug(cce.getMessage(), cce);
         }
     }
-    
+
     public SocketChannel getChannel() {
         return channel;
     }

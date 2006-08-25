@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.message.GameMessage;
 import org.ctor.dev.llrps2.message.RoundMapper;
+import org.ctor.dev.llrps2.message.RoundMediationStatusMessage;
 import org.ctor.dev.llrps2.message.RoundMessage;
 import org.ctor.dev.llrps2.model.Agent;
 import org.ctor.dev.llrps2.model.AgentPair;
@@ -71,7 +72,7 @@ public class RoundManager {
     }
 
     public synchronized void persistRound(RoundMessage roundMessage) {
-        LOG.info("persisting round result: " + roundMessage);
+        LOG.debug("persisting round result: " + roundMessage);
         final Round round = roundDao.findByName(roundMessage.getRoundId());
         if (round == null) {
             LOG.error("round not found: " + roundMessage);
@@ -97,6 +98,16 @@ public class RoundManager {
         LOG.info("removed round: " + round);
         roundDao.remove(round);
         roundDao.flush();
+    }
+
+    void notifyRoundMediationStatus(RoundMediationStatusMessage status) {
+        LOG.info("+-- round status --+");
+        LOG
+                .info(String.format("| waiting:  %06d |", status
+                        .getWaitingRounds()));
+        LOG.info(String
+                .format("| done:     %06d |", status.getMediatedRounds()));
+        LOG.info("+------------------+");
     }
 
     private void requestRoundMediation(Contest contest, Agent left,

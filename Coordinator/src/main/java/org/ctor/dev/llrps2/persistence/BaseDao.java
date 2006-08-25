@@ -23,6 +23,6 @@ public interface BaseDao<T, ID extends Serializable> {
 
     @Transactional(readOnly = false)
     void remove(T entity);
-    
+
     void flush();
 }

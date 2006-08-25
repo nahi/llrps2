@@ -45,8 +45,7 @@ public class RpsMessage {
         final String[] parameters;
         if (matcher.group(2) == null) {
             parameters = ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-        else {
+        } else {
             parameters = parameterSplitPattern.split(matcher.group(2));
         }
         if (parameters.length != definitions.length) {
@@ -79,8 +78,7 @@ public class RpsMessage {
         if (parameters.length > 0) {
             return String.format("%s %s", command.getCommand(), StringUtils
                     .join(parameters, ' '));
-        }
-        else {
+        } else {
             return command.getCommand();
         }
     }
