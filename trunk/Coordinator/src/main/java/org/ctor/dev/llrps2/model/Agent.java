@@ -15,6 +15,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 public class Agent implements Serializable {
+    private static final String DECOY_IPADDRESS = "127.0.0.1";
+
     private static final long serialVersionUID = 1;
 
     @Id
@@ -24,8 +26,6 @@ public class Agent implements Serializable {
     @Column(length = 255, nullable = false, unique = true)
     private final String name;
 
-    // XXX should be unique
-    // @Column(length = 63, nullable = false, unique = true)
     @Column(length = 63, nullable = false)
     private final String ipAddress;
 
@@ -34,23 +34,33 @@ public class Agent implements Serializable {
 
     @Column(nullable = false)
     private final boolean active;
-    
+
+    @Column
+    private final Integer decoyType;
+
     public static Agent create(String name, String ipAddress, Integer port,
             boolean active) {
         Validate.notNull(ipAddress);
         Validate.notNull(name);
-        return new Agent(name, ipAddress, port, active);
+        return new Agent(name, ipAddress, port, active, null);
+    }
+
+    public static Agent createDecoy(String name, Integer decoyType) {
+        Validate.notNull(name);
+        return new Agent(name, DECOY_IPADDRESS, null, false, decoyType);
     }
 
     Agent() {
-        this(null, null, null, false);
+        this(null, null, null, false, null);
     }
 
-    private Agent(String name, String ipAddress, Integer port, boolean active) {
+    private Agent(String name, String ipAddress, Integer port, boolean active,
+            Integer decoyType) {
         this.name = name;
         this.ipAddress = ipAddress;
         this.port = port;
         this.active = active;
+        this.decoyType = decoyType;
     }
 
     public Long getId() {
@@ -73,6 +83,10 @@ public class Agent implements Serializable {
         return active;
     }
 
+    public Integer getDecoyType() {
+        return decoyType;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {
@@ -82,18 +96,19 @@ public class Agent implements Serializable {
             return false;
         }
         final Agent rhs = (Agent) other;
-        return new EqualsBuilder().append(getIpAddress(), rhs.getIpAddress())
-                .isEquals();
+        return new EqualsBuilder().append(getName(), rhs.getName()).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(getIpAddress()).toHashCode();
+        return new HashCodeBuilder(17, 37).append(getName()).toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("name", getName()).append(
-                "ipAddress", getIpAddress()).toString();
+                "ipAddress", getIpAddress()).append("port", getPort()).append(
+                "active", isActive()).append("decoyType", getDecoyType())
+                .toString();
     }
 }

@@ -1,5 +1,7 @@
 package org.ctor.dev.llrps2.mediator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -11,15 +13,20 @@ import javax.jms.ObjectMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.message.RoundMessage;
+import org.ctor.dev.llrps2.message.StartMessage;
 import org.springframework.jms.core.JmsTemplate;
 
 public class RoundMediationManager implements MessageListener {
     private static final Log LOG = LogFactory
             .getLog(RoundMediationManager.class);
 
+    private static final List<RoundMessage> EMPTY_ROUNDS = new ArrayList<RoundMessage>();
+
     private final JmsTemplate jmsTemplate;
 
     private Mediator mediator = null;
+
+    private boolean started = false;
 
     private String roundResultNotificationDestination = null;
 
@@ -36,11 +43,18 @@ public class RoundMediationManager implements MessageListener {
                             + message.getClass());
         }
         try {
-            final ObjectMessage obj = (ObjectMessage) message;
-            final RoundMessage round = (RoundMessage) obj.getObject();
-            LOG.info("received: round mediation request: " + round);
-            rounds.add(round);
-            mediator.notifyRoundMediationRequest();
+            final Object obj = ((ObjectMessage) message).getObject();
+            if (obj instanceof RoundMessage) {
+                final RoundMessage round = (RoundMessage) obj;
+                LOG.info("received: round mediation request: " + round);
+                rounds.add(round);
+                mediator.notifyRoundMediationRequest();
+            } else if (obj instanceof StartMessage) {
+                final StartMessage start = (StartMessage) obj;
+                Collections.shuffle(rounds);
+                LOG.info("received start message: " + start.getMessage());
+                started = true;
+            }
         } catch (JMSException e) {
             LOG.warn(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -58,7 +72,8 @@ public class RoundMediationManager implements MessageListener {
         jmsTemplate.convertAndSend(roundResultNotificationDestination, round);
         LOG.info("sent round result notification: " + round);
         rounds.remove(round);
-        mediator.scan();
+        LOG.info(String.format("%d rounds left", rounds.size()));
+        mediator.notifyScan();
     }
 
     public void setMediator(Mediator sessionManager) {
@@ -79,6 +94,9 @@ public class RoundMediationManager implements MessageListener {
     }
 
     public List<RoundMessage> getRounds() {
+        if (!started) {
+            return EMPTY_ROUNDS;
+        }
         return rounds;
     }
 }

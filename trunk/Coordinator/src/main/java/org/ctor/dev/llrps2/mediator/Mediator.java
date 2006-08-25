@@ -5,6 +5,7 @@ import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.message.RoundMessage;
+import org.ctor.dev.llrps2.model.DateTimeMapper;
 import org.ctor.dev.llrps2.session.RpsSessionException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -26,13 +28,15 @@ public class Mediator {
 
     private int connectionScanInterleaveMsec = 2000;
 
-    private int maxConnectionsForPassiveAgent = 5;
+    private int maxConnectionsForAgent = 3;
 
     private Selector selector = null;
 
     private int sessionCounter = 0;
+    
+    private boolean scanNext = false;
 
-    private Map<SocketChannel, SessionHandler> handlerMap = new HashMap<SocketChannel, SessionHandler>();
+    private Map<SocketChannel, SocketSessionHandler> handlerMap = new HashMap<SocketChannel, SocketSessionHandler>();
 
     public static void main(String[] args) throws IOException {
         final ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
@@ -67,16 +71,15 @@ public class Mediator {
     void notifyRoundMediationRequest() {
         //
     }
-
-    void scan() {
-        scanConnection();
-        scanRound();
+    
+    void notifyScan() {
+        scanNext = true;
     }
 
     private void selectAndProcess() throws IOException, RpsSessionException {
         final int keys = selector.select(connectionScanInterleaveMsec);
         if (keys == 0) {
-            scan(); // for initial scan;  keys won't be 0 after contest started
+            scan(); // for initial scan; keys won't be 0 after contest started
             return;
         }
         LOG.info(String.format("selected %d keys", keys));
@@ -88,7 +91,7 @@ public class Mediator {
             }
             ite.remove();
             final SocketChannel channel = (SocketChannel) key.channel();
-            final SessionHandler handler = getHandler(channel);
+            final SocketSessionHandler handler = getHandler(channel);
             try {
                 handler.handle();
             } catch (RpsSessionException rse) {
@@ -97,6 +100,15 @@ public class Mediator {
                 throw rse;
             }
         }
+        if (scanNext) {
+            scan();
+            scanNext = false;
+        }
+    }
+
+    private void scan() {
+        scanConnection();
+        scanRound();
     }
 
     private void scanConnection() {
@@ -106,20 +118,22 @@ public class Mediator {
         boolean added = false;
         for (EnrolledAgent agent : agentEnrollmentManager.getAgents()) {
             final int connections = agent.connections();
-            if (connections >= maxConnectionsForPassiveAgent) {
+            if (connections >= maxConnectionsForAgent) {
                 continue;
             }
-            LOG.info("trying to create new connection for " + agent.getAgent());
+            LOG.debug("trying to create new connection for " + agent.getAgent());
             try {
                 final SessionHandler handler = sessionFactory.create(agent,
                         newSessionId());
                 if (handler == null) {
-                    LOG.info("cannot create");
+                    LOG.debug("cannot create");
                 } else {
                     final SocketChannel channel = handler.getChannel();
-                    channel.configureBlocking(false);
-                    channel.register(selector, SelectionKey.OP_READ);
-                    assignHandler(channel, handler);
+                    if (channel != null) {
+                        channel.configureBlocking(false);
+                        channel.register(selector, SelectionKey.OP_READ);
+                        assignHandler(channel, (SocketSessionHandler) handler);
+                    }
                     agent.pushbackSession(handler);
                     added = true;
                 }
@@ -193,9 +207,20 @@ public class Mediator {
             }
             return;
         }
+        // do not mediate decoy-to-decoy. it can take too much time.
+        if (leftAgent.getAgent().isDecoy() && rightAgent.getAgent().isDecoy()) {
+            final String now = DateTimeMapper
+                    .modelToMessage(new GregorianCalendar());
+            round.setStartDateTime(now);
+            round.setFinishDateTime(now);
+            getRoundMediationManager().notifyRoundResult(round);
+            leftAgent.pushbackSession(leftSession);
+            rightAgent.pushbackSession(rightSession);
+            return;
+        }
         try {
-            RoundHandler.create(roundMediationManager, round, leftSession,
-                    rightSession);
+            MediationRoundHandler.create(roundMediationManager, round,
+                    leftSession, rightSession);
             round.setAssigned(true);
             LOG.info("assigned a new round");
             leftAgent.pushbackSession(leftSession);
@@ -223,7 +248,8 @@ public class Mediator {
         return String.format("S_%d", sessionCounter);
     }
 
-    private void assignHandler(SocketChannel channel, SessionHandler handler) {
+    private void assignHandler(SocketChannel channel,
+            SocketSessionHandler handler) {
         handlerMap.put(channel, handler);
     }
 
@@ -231,7 +257,7 @@ public class Mediator {
         handlerMap.remove(channel);
     }
 
-    private SessionHandler getHandler(SocketChannel channel) {
+    private SocketSessionHandler getHandler(SocketChannel channel) {
         return handlerMap.get(channel);
     }
 
@@ -269,12 +295,11 @@ public class Mediator {
         return connectionScanInterleaveMsec;
     }
 
-    public void setMaxConnectionsForPassiveAgent(
-            int maxConnectionsForPassiveAgent) {
-        this.maxConnectionsForPassiveAgent = maxConnectionsForPassiveAgent;
+    public void setMaxConnectionsForAgent(int maxConnectionsForPassiveAgent) {
+        this.maxConnectionsForAgent = maxConnectionsForPassiveAgent;
     }
 
-    public int getMaxConnectionsForPassiveAgent() {
-        return maxConnectionsForPassiveAgent;
+    public int getMaxConnectionsForAgent() {
+        return maxConnectionsForAgent;
     }
 }

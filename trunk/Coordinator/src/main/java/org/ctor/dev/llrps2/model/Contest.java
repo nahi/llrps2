@@ -34,7 +34,7 @@ public class Contest implements Serializable {
 
     @Column(length = 255, nullable = false, unique = true)
     private final String name;
-    
+
     @Column(nullable = false)
     private int mediationCount = 0;
 
@@ -73,11 +73,11 @@ public class Contest implements Serializable {
     public String getName() {
         return name;
     }
-    
+
     public void incrementMediationCount() {
         mediationCount += 1;
     }
-    
+
     public int getMediationCount() {
         return mediationCount;
     }
@@ -114,14 +114,14 @@ public class Contest implements Serializable {
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("name", getName()).append(
-                "contestants", getContestants()).append("result", getResult())
-                .toString();
+                "mediationCount", getMediationCount()).append("contestants",
+                getContestants()).append("result", getResult()).toString();
     }
-    
+
     public void start() {
         getResult().setStartDateTime(new GregorianCalendar());
     }
-    
+
     public void finish() {
         getResult().setFinishDateTime(new GregorianCalendar());
     }

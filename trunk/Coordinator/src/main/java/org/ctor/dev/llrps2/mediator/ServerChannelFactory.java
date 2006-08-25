@@ -27,7 +27,7 @@ public class ServerChannelFactory implements Runnable {
 
     // synchronized is for clean shutdown
     public SocketChannel create(EnrolledAgent agent) {
-        LOG.info("creating channel for " + agent.getAgent());
+        LOG.debug("creating channel for " + agent.getAgent());
         if (serverThread == null) {
             startServerThread();
         }

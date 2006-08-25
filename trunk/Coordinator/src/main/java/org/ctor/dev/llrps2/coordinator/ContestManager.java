@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.model.Agent;
-import org.ctor.dev.llrps2.model.AgentPair;
 import org.ctor.dev.llrps2.model.Contest;
 import org.ctor.dev.llrps2.model.Round;
 import org.ctor.dev.llrps2.model.RoundRule;
@@ -31,7 +30,6 @@ public class ContestManager {
         openContest(contestName, Arrays.asList(agents));
     }
 
-    @Transactional
     public void openContest(String contestName, List<Agent> agents) {
         final Contest contest = getOrCreateContest(contestName, agents);
         // remove orphan rounds if exists
@@ -41,6 +39,7 @@ public class ContestManager {
             if (round.getResult().getFinishDateTime() == null) {
                 ite.remove();
                 roundManager.removeRound(round);
+                contestDao.flush();
             }
         }
         for (Agent contestant : contest.getContestants()) {
@@ -48,47 +47,8 @@ public class ContestManager {
         }
     }
 
-    public int startContest(String contestName, int rounds, RoundRule rule) {
-        final Contest contest = contestDao.findByName(contestName);
-        if (contest == null) {
-            throw new IllegalArgumentException("contest not found: "
-                    + contestName);
-        }
-        contest.incrementMediationCount();
-        final List<Agent> contestants = contest.getContestants();
-        int count = 0;
-        for (int idx = 0; idx < rounds; ++idx) {
-            for (int i = 0; i < contestants.size(); ++i) {
-                for (int j = i + 1; j < contestants.size(); ++j) {
-                    final AgentPair pair = createMatchup(contestants.get(i),
-                            contestants.get(j));
-                    final Agent left = pair.getFirst();
-                    final Agent right = pair.getSecond();
-                    final List<Round> matchups = contestDao.findByMatchup(
-                            contest, left, right);
-                    if (matchups.size() >= rounds) {
-                        LOG.info(String.format(
-                                "no more round mediation needed "
-                                        + "for '%s' and '%s'", left.getName(),
-                                right.getName()));
-                    } else {
-                        getRoundManager().requestRoundMediation(contest, left,
-                                right, rule);
-                        count += 1;
-                    }
-                }
-            }
-        }
-        LOG.info(String.format("requested %d round mediations", count));
-        return count;
-    }
-
-    private AgentPair createMatchup(Agent left, Agent right) {
-        if (Math.random() > 0.5) {
-            return AgentPair.create(left, right);
-        } else {
-            return AgentPair.create(right, left);
-        }
+    public void startContest(String contestName, int rounds, RoundRule rule) {
+        getRoundManager().requestRoundMediations(contestName, rounds, rule);
     }
 
     private Contest getOrCreateContest(String contestName, List<Agent> agents) {

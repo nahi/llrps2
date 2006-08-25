@@ -71,7 +71,7 @@
     <property name="roundMediationManager" ref="roundMediationManager" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="connectionScanInterleaveMsec" value="${mediator.connectionScanInterleaveMsec}" />
-    <property name="maxConnectionsForPassiveAgent" value="${mediator.maxConnectionsForPassiveAgent}" />
+    <property name="maxConnectionsForAgent" value="${mediator.maxConnectionsForAgent}" />
   </bean>
   
   <bean id="sessionFactory" class="org.ctor.dev.llrps2.mediator.SessionFactory">

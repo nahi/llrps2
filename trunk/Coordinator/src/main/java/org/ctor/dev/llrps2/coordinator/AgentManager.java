@@ -40,6 +40,15 @@ public class AgentManager {
         }
         return createPassiveAgent(agentName, ipAddress, port);
     }
+    
+    public Agent getOrCreateDecoyAgent(String agentName, int decoyType) {
+        final Agent found = getAgent(agentName);
+        if (found != null) {
+            LOG.info("agent already exist (ignored ipAddress and port)");
+            return found;
+        }
+        return createDecoyAgent(agentName, decoyType);
+    }
 
     public Agent createActiveAgent(String agentName, String ipAddress) {
         final Agent agent = Agent.create(agentName, ipAddress, null, true);
@@ -52,6 +61,13 @@ public class AgentManager {
         final Agent agent = Agent.create(agentName, ipAddress, port, false);
         agentDao.save(agent);
         LOG.info("created agent: " + agentName);
+        return agent;
+    }
+    
+    public Agent createDecoyAgent(String agentName, int decoyType) {
+        final Agent agent = Agent.createDecoy(agentName, decoyType);
+        agentDao.save(agent);
+        LOG.info("created decoy agent: " + agentName);
         return agent;
     }
 

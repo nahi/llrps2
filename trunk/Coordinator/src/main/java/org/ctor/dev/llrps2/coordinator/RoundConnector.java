@@ -8,6 +8,7 @@ import javax.jms.ObjectMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ctor.dev.llrps2.message.RoundMessage;
+import org.ctor.dev.llrps2.message.StartMessage;
 import org.springframework.jms.core.JmsTemplate;
 
 public class RoundConnector implements MessageListener {
@@ -43,6 +44,14 @@ public class RoundConnector implements MessageListener {
     void requestRoundMediation(RoundMessage message) {
         jmsTemplate.convertAndSend(roundMediationRequestDestination, message);
         LOG.info("sent: round mediation request");
+    }
+
+    void requestStartRoundMediation(String message) {
+        final StartMessage startMessage = StartMessage
+                .create("start round mediation for " + message);
+        jmsTemplate.convertAndSend(roundMediationRequestDestination,
+                startMessage);
+        LOG.info("sent: start round mediation request");
     }
 
     public void setRoundMediationRequestDestination(
