@@ -16,19 +16,17 @@ package {
 	import flash.events.MouseEvent;
 	import flash.system.Security;
 	public class Janken2 extends Sprite{
-		//public var agent:Agent;
-		//public var protocol:JankenProtocol;
 		private var agents:Array;
-		private var host:String = "192.168.1.2";//"localhost";
+		private var host:String = "192.168.1.2";
 		private var port:int = 12346;
 		private var conNum:int = 1;/*同時接続数*/
-		public var reconnectTime:Number = 1000;/*再接続までの秒数*/
+		public var reconnectTime:Number = 100;/*再接続までの秒数*/
 		private var _strategy:Strategy;
 		public function Janken2(){
 			initStage();
 			initLog();
-			//_strategy = new StrategyUseSound();
-			_strategy = new Strategy();
+			_strategy = new StrategyUseSound(40);
+			//_strategy = new Strategy();
 		}
 		private var _hostTf:TextField;
 		private var _conNumTf:TextField;
@@ -42,6 +40,9 @@ package {
 		private var _clearStatBt:SimpleButton;
 		private var _shadowFilter:DropShadowFilter = new DropShadowFilter(4,45,0x000011,0.3,6,6);
 		private var _bevelFilter:BevelFilter = new BevelFilter(5,90,0x0000ff,0.2,0x000000,0.0,0,10);
+		private var _micLevelView:Sprite;
+		private var _currentMicViewLevel:Number = 0;
+		private var _micLevelViewColor:uint = 0x0044cc;
 		/**
 		 * ステージの初期化
 		 * UI作成(コンポーネントはあえて使っていません)
@@ -52,7 +53,7 @@ package {
 			stage.align = StageAlign.TOP_LEFT;
 			stage.quality = StageQuality.HIGH;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.frameRate = 100;
+			stage.frameRate = 200;
 			//タイトル
 			var titleTf:TextField = createTextField(10,10,300,20,0,false);
 			titleTf.htmlText = '<font size="14">Janken2 client</font>';
@@ -86,6 +87,9 @@ package {
 			_statTf = createTextField(10,60,480,20,0x000000,true,0xffffff,0x0000ff);
 			_statTf.type = TextFieldType.DYNAMIC;
 			_statTf.text = "";
+			var tf:TextFormat = _statTf.getTextFormat();
+			tf.size = 3;
+			_statTf.setTextFormat(tf);
 			_statTf.filters = [_bevelFilter,_shadowFilter];
 			addChild(_statTf);
 			
@@ -109,6 +113,17 @@ package {
 			_clearStatBt.filters = [_shadowFilter];
 			addChild(_clearStatBt);
 			_clearStatBt.addEventListener(MouseEvent.CLICK,clearStatButtonClickHandler);
+			
+			//mic音量バー
+			_micLevelView = new Sprite();
+			_micLevelView.x = 100;
+			_micLevelView.y = 20;
+			_micLevelView.filters = [new GlowFilter(0x00ffff,0.8,6,6),_shadowFilter];
+			var updateMicView:Function = function(ev:Event):void{
+				showMicLevel();
+			}
+			_micLevelView.addEventListener(Event.ENTER_FRAME,updateMicView);
+			addChild(_micLevelView);
 		}
 		private function connectButtonClickHandler(ev:Event):void{
 			run();
@@ -179,10 +194,24 @@ package {
 		 * ログ更新通知
 		 */
 		private function logupdateHandler(e:Event):void{
-			var s:String = Log.getInstance().getTail();
-			trace(s);
-			_logTf.appendText(s);
+			var s1:String = Log.getInstance().getTail(20);
+			_logTf.text = s1;
 			_logTf.scrollV = _logTf.maxScrollV;
+			var s2:String = Log.getInstance().getTail(1);
+			trace(s2);
+		}
+		/**
+		 * マイクの音量を表示
+		 */
+		private function showMicLevel():void{
+			_micLevelView.graphics.clear();
+			if(_strategy is StrategyUseSound){
+				var level:Number = StrategyUseSound(_strategy).getMicLevel();
+				if(level<0) level = 0;
+				_currentMicViewLevel += (level - _currentMicViewLevel)*0.4;
+				_micLevelView.graphics.beginFill(_micLevelViewColor,1.0);
+				_micLevelView.graphics.drawRect(0,0,_currentMicViewLevel*3,4);
+			}
 		}
 		/**
 		 * テキストフィールドを作成

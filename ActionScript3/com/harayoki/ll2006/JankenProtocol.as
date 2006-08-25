@@ -1,6 +1,7 @@
 ﻿package com.harayoki.ll2006{
 	import com.harayoki.ll2006.JankenState;
 	import com.harayoki.Util.Log;
+	import flash.display.Sprite;
 	public class JankenProtocol implements IProtocol{
 		private var _agent:Agent;
 		private var _session_id:String;
