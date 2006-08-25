@@ -125,7 +125,6 @@ public class Game implements Serializable {
                         getRightMove()).append("judge", getJudge()).toString();
     }
 
-    // XXX check performance and consider to cache it by myself
     public Move getPreviousLeftMove() {
         final Game previousGame = getPreviousGame();
         if (previousGame == null) {
@@ -134,7 +133,6 @@ public class Game implements Serializable {
         return previousGame.getLeftMove();
     }
 
-    // XXX check performance and consider to cache it by myself
     public Move getPreviousRightMove() {
         final Game previousGame = getPreviousGame();
         if (previousGame == null) {

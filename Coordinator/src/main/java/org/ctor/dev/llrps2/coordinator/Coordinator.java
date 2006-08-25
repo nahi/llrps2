@@ -48,11 +48,16 @@ public class Coordinator {
      * contestManager.openContest("C20060823_2", [testruby, testjava, testgawk,
      * testjava2])
      * 
-     * contestManager.openContest("C20060824_4", [testruby, testjava, testgawk])
-     * contestManager.startContest("C20060824_4", 100, rule)
+     * contestManager.openContest("C20060825_1", [testruby, testjava, testgawk])
+     * 
+     * contestManager.startContest("C20060825_1", 10, rule)
+     * 
+     * contestManager.openContest("C20060825_9", [testjava, testgawk, testruby, justRock, rotate, copy, copy2])
+     * 
+     * contestManager.startContest("C20060825_9", 10, rule)
      */
     public void start() throws IOException {
-        final RoundRule rule = RoundRule.create(100, 10000L, GameRule.Normal);
+        final RoundRule rule = RoundRule.create(100, 60000L, GameRule.Normal);
         final Context ctx = Context.enter();
         try {
             final Scriptable scope = ctx.initStandardObjects();
@@ -84,6 +89,15 @@ public class Coordinator {
                     .getOrCreateActiveAgent("testgawk", "127.0.0.1"));
             ScriptableObject.putProperty(scope, "testjava2", agentManager
                     .getOrCreateActiveAgent("testjava2", "192.168.1.131"));
+
+            ScriptableObject.putProperty(scope, "justRock", agentManager
+                    .getOrCreateDecoyAgent("JustRock", 0));
+            ScriptableObject.putProperty(scope, "rotate", agentManager
+                    .getOrCreateDecoyAgent("Rotate", 1));
+            ScriptableObject.putProperty(scope, "copy", agentManager
+                    .getOrCreateDecoyAgent("Copy", 2));
+            ScriptableObject.putProperty(scope, "copy2", agentManager
+                    .getOrCreateDecoyAgent("Copy2", 3));
 
             while (true) {
                 try {

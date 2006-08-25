@@ -145,6 +145,7 @@
 
   <bean id="roundManager" class="org.ctor.dev.llrps2.coordinator.RoundManager">
     <property name="roundConnector" ref="roundConnector" />
+    <property name="contestDao" ref="contestDao" />
     <property name="roundDao" ref="roundDao" />
   </bean>
 

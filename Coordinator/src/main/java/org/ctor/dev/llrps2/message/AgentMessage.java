@@ -17,22 +17,25 @@ public class AgentMessage implements Serializable {
     private final Integer port;
 
     private final boolean active;
+    
+    private final Integer decoyType;
 
     private String cname = null;
 
     public static AgentMessage create(String name, String ipAddress,
-            Integer port, boolean active) {
+            Integer port, boolean active, Integer decoyType) {
         Validate.notNull(name);
         Validate.notNull(ipAddress);
-        return new AgentMessage(name, ipAddress, port, active);
+        return new AgentMessage(name, ipAddress, port, active, decoyType);
     }
 
     private AgentMessage(String name, String ipAddress, Integer port,
-            boolean active) {
+            boolean active, Integer decoyType) {
         this.name = name;
         this.ipAddress = ipAddress;
         this.port = port;
         this.active = active;
+        this.decoyType = decoyType;
     }
 
     public String getName() {
@@ -54,6 +57,14 @@ public class AgentMessage implements Serializable {
      */
     public boolean isActive() {
         return active;
+    }
+
+    public Integer getDecoyType() {
+        return decoyType;
+    }
+    
+    public boolean isDecoy() {
+        return decoyType != null;
     }
 
     public void setCname(String cname) {

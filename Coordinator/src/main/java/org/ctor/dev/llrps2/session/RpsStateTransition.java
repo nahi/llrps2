@@ -46,7 +46,7 @@ public class RpsStateTransition {
         if (!candidate.contains(to)) {
             throw new IllegalRpsStateTransitionException(state, to);
         }
-        LOG.info(String.format("[%s] %s -> %s", identifier, state, to));
+        LOG.debug(String.format("[%s] %s -> %s", identifier, state, to));
         state = to;
     }
 }

@@ -12,12 +12,17 @@ public class SessionFactory {
 
     public SessionHandler create(EnrolledAgent agent, String sessionId)
             throws RpsSessionException {
-        final SocketChannel channel = createChannel(agent);
-        if (channel == null) {
-            return null;
+        SessionHandler handler = null;
+        if (agent.getAgent().getDecoyType() != null) {
+            handler = DecoySessionHandler.create(agent.getAgent()
+                    .getDecoyType().intValue(), sessionId);
+        } else {
+            final SocketChannel channel = createChannel(agent);
+            if (channel == null) {
+                return null;
+            }
+            handler = SocketSessionHandler.create(channel, sessionId);
         }
-        final SessionHandler handler = SessionHandler
-                .create(channel, sessionId);
         handler.connect();
         if (!agent.getAgent().isActive()) {
             handler.sendHello();

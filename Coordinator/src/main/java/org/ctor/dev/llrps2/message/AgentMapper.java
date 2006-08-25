@@ -9,6 +9,6 @@ public final class AgentMapper {
 
     public static AgentMessage modelToMessage(Agent agent) {
         return AgentMessage.create(agent.getName(), agent.getIpAddress(), agent
-                .getPort(), agent.isActive());
+                .getPort(), agent.isActive(), agent.getDecoyType());
     }
 }
