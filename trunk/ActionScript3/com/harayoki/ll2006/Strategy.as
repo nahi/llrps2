@@ -3,6 +3,7 @@ package com.harayoki.ll2006{
 	import com.harayoki.ll2006.*;
 	public class Strategy{
 		internal var _matchResults:Object;
+		internal var _myHands:Array;
 		internal var _matchCount:int = 0;
 		internal var _gcpCount:int = 0;/**/
 		internal var _lastMove:int;/*自分の最後の手*/
@@ -30,7 +31,9 @@ package com.harayoki.ll2006{
 		 */
 		public function getStats():String{
 			var o:Object = _matchResults;
-			return ("ラウンド数"+_roundNum+" 対戦"+_matchCount+"回 "+o.kati+"勝 "+o.make+"敗 "+o.aiko+"引き分け 無効："+o.mukou);
+			var s:String = "round"+_roundNum+" "+_matchCount+"対戦 "+o.kati+"勝 "+o.make+"敗 "+o.aiko+"分け 無効："+o.mukou;
+			s += " 自分の手 グー"+_myHands[1]+" チョキ"+_myHands[2]+" パー"+_myHands[3]+" 無効"+_myHands[0];
+			return s;
 		}
 		/**
 		 * 対戦情報をクリア
@@ -38,6 +41,7 @@ package com.harayoki.ll2006{
 		public function clearStat():void{
 			_matchCount = 0;
 			_matchResults = {kati:0,aiko:0,make:0,mukou:0};
+			_myHands = [0,0,0,0];
 		}
 		/**
 		 * ラウンドが変わった(相手が変わった？)時に呼び出す
@@ -78,6 +82,7 @@ package com.harayoki.ll2006{
 			_gcpCount++;
 			var res:int = _selectMove();
 			_addLog("自分の手 "+res+"="+_getMoveNameById(res));
+			_myHands[res]++;
 			_lastMove = res;
 			return res;
 		}
