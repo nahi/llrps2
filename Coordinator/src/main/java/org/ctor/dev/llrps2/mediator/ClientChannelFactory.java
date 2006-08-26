@@ -35,7 +35,7 @@ public class ClientChannelFactory {
         final String[] particles = StringUtils.split(ipAddress, '.');
         final byte[] bytes = new byte[particles.length];
         for (int idx = 0; idx < particles.length; ++idx) {
-            bytes[idx] = Byte.parseByte(particles[idx]);
+            bytes[idx] = (byte)Integer.parseInt(particles[idx]);
         }
         return bytes;
     }

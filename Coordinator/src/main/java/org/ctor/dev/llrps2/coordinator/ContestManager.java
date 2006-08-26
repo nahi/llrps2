@@ -74,8 +74,9 @@ public class ContestManager {
             LOG.info("contest already exists: " + newContestName);
             for (Agent agent : agents) {
                 if (!found.getContestants().contains(agent)) {
-                    LOG.info("added the new contestant: " + agent);
-                    found.getContestants().add(agent);
+                    final Agent contestant = agentDao.findByName(agent.getName());
+                    LOG.info("added the new contestant: " + contestant);
+                    found.getContestants().add(contestant);
                 }
             }
             for (Agent contestant : found.getContestants()) {
