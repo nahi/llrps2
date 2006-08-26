@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.org/config/1.0">
+
+  <!-- import properties -->
+  
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location" value="classpath:org/ctor/dev/llrps2/llrps2.properties" />
+  </bean>
+      
+  <amq:broker useJmx="false">
+    <amq:transportConnectors>
+      <amq:transportConnector name="default" uri="tcp://localhost:61616"/>
+    </amq:transportConnectors>
+    <amq:persistenceAdapter adapterClass="org.apache.activemq.store.jdbc.adapter.ImageBasedJDBCAdaptor">
+      <amq:jdbcPersistenceAdapter dataSource="#activemqDataSource"/>
+    </amq:persistenceAdapter>
+  </amq:broker>
+
+  <bean id="activemqDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="org.postgresql.Driver"/>
+    <property name="url" value="${activemq.jdbc.url}"/>
+    <property name="username" value="${activemq.jdbc.username}"/>
+    <property name="password" value="${activemq.jdbc.password}"/>
+  </bean>
+</beans>

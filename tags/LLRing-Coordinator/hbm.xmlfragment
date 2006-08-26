@@ -1,0 +1,16 @@
+  <taskdef name="hibernatetool"
+      classname="org.hibernate.tool.ant.HibernateToolTask">
+    <classpath>
+      <path refid="build.classpath"/>
+      <pathelement location="${maven.build.output}"/>
+    </classpath>
+  </taskdef>
+
+  <target depends="compile" name="generate.ddl">
+    <hibernatetool destdir=".">
+      <annotationconfiguration
+          configurationfile="src/main/java/hibernate.cfg.xml"/>
+      <hbm2ddl export="false" outputfilename="sql/llrps2.sql"/>
+      <hbm2ddl export="false" drop="true" outputfilename="sql/llrps2_drop.sql"/>
+    </hibernatetool>
+  </target>
