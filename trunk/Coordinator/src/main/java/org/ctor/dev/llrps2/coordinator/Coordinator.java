@@ -52,10 +52,11 @@ public class Coordinator {
      * 
      * contestManager.startContest("C20060825_1", 10, rule)
      * 
-     * contestManager.openContest("C20060825_14", [testgawk, testruby, justRock,
-     * rotate, copy, copy2])
+     * contestManager.openContest("C20060826_rehearsal", [ruby, python, javaScript, actionScript, gawk, justRock, rotate, copy, copy2])
      * 
-     * contestManager.startContest(2, rule)
+     * contestManager.openContest("C20060826", [ruby, python, javaScript, actionScript, gawk, justRock, rotate, copy, copy2])
+     * 
+     * contestManager.startContest(5, rule100)
      */
     public void start() throws IOException {
         final RoundRule rule100 = RoundRule
